@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
@@ -12,7 +13,8 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger
     public static class GetTransferByIdHttpTrigger
     {
         [FunctionName("GetById")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId:guid}/Interactions/{interactionId:guid}/Transfers/{transferId:guid}")]HttpRequestMessage req, TraceWriter log, string transferId)
+        [Display(Name = "Get", Description = "Ability to retrieve an individual transfer record.")]
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId, string transferId)
         {
             log.Info("Get Transfer By Id C# HTTP trigger function  processed a request.");
 
