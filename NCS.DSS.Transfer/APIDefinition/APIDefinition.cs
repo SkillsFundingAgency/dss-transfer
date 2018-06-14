@@ -19,10 +19,10 @@ namespace NCS.DSS.Transfer.APIDefinition
 {
     public static class ApiDefinition
     {
-        public const string APIDefinitionName = "API-Definition";
-        public const string APIDefRoute = "Transfers/api-definition";
-        public const string APIDescription = "Basic details of a National Careers Service Transfer Resource";
         public const string APITitle = "Transfers";
+        public const string APIDefinitionName = "API-Definition";
+        public const string APIDefRoute = APITitle + "/" + APIDefinitionName;
+        public const string APIDescription = "Basic details of a National Careers Service " + APITitle + " Resource";
 
         public class Result<T>
         {
@@ -132,6 +132,8 @@ namespace NCS.DSS.Transfer.APIDefinition
                     operation.description = GetFunctionDescription(methodInfo, functionAttr.Name);
 
                     operation.responses = GenerateResponseParameterSignature(methodInfo, doc);
+                    operation.tags = new[] { APITitle };
+
                     dynamic keyQuery = new ExpandoObject();
                     keyQuery.apikeyQuery = new string[0];
                     operation.security = new ExpandoObject[] { keyQuery };
