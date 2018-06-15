@@ -14,6 +14,7 @@ using System.Web.Http.Description;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.APIDefinition
 {
@@ -241,9 +242,22 @@ namespace NCS.DSS.Transfer.APIDefinition
                     }
                 }
             }
-            responseDef.description = "OK";
-            AddToExpando(responses, "200", responseDef);
+            // automatically get data(http code, description and show schema) from the new custom response class
+            var responseCodes = methodInfo.GetCustomAttributes(typeof(TransferResponse), false);
+
+            foreach (var response in responseCodes)
+            {
+                var transferResponse = (TransferResponse)response;
+
+                if (!transferResponse.ShowSchema)
+                    responseDef = new ExpandoObject();
+
+                responseDef.description = transferResponse.Description;
+                AddToExpando(responses, transferResponse.HttpStatusCode.ToString(), responseDef);
+            }
+
             return responses;
+
         }
 
         private static List<object> GenerateFunctionParametersSignature(MethodInfo methodInfo, string route, dynamic doc)

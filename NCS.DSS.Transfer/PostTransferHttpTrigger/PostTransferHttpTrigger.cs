@@ -6,6 +6,7 @@ using System.Web.Http.Description;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.PostTransferHttpTrigger
 {
@@ -13,6 +14,9 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger
     {
         [FunctionName("Post")]
         [ResponseType(typeof(Models.Transfer))]
+        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.Created, Description = "Transfer Created", ShowSchema = true)]
+        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Unable to create Transfer", ShowSchema = false)]
+        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Forbidden", ShowSchema = false)]
         [Display(Name = "Post", Description = "Ability to create a new transfer resource.")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId)
         {

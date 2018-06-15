@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
+using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.GetTransferHttpTrigger
 {
@@ -14,6 +15,7 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger
     {
         [FunctionName("Get")]
         [ResponseType(typeof(Models.Transfer))]
+        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfers found", ShowSchema = true)]
         [Display(Name = "Get", Description = "Ability to return all transfer records for a given customer.")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId)
         {
