@@ -19,6 +19,7 @@ namespace NCS.DSS.Transfer.Models
         [Required]
         public Guid TargetTouchpointId { get; set; }
 
+        [StringLength(2000)]
         [Display(Description = "Context of the transfer.")]
         public string Context { get; set; }
 
