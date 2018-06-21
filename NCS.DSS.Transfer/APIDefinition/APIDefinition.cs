@@ -16,6 +16,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using NCS.DSS.Transfer.Annotations;
+using NCS.DSS.WebChat.Annotations;
 
 namespace NCS.DSS.Transfer.APIDefinition
 {
@@ -123,7 +124,7 @@ namespace NCS.DSS.Transfer.APIDefinition
                 foreach (string verb in verbs)
                 {
                     dynamic operation = new ExpandoObject();
-                    operation.operationId = ToTitleCase(functionAttr.Name) + ToTitleCase(verb);
+                    operation.operationId = ToTitleCase(functionAttr.Name);
                     operation.produces = new[] { "application/json" };
                     operation.consumes = new[] { "application/json" };
                     operation.parameters = GenerateFunctionParametersSignature(methodInfo, route, doc);
@@ -370,8 +371,11 @@ namespace NCS.DSS.Transfer.APIDefinition
                 dynamic propDef = new ExpandoObject();
                 propDef.description = GetPropertyDescription(property);
 
-                var stringAttribute = (StringLengthAttribute)property.GetCustomAttributes(typeof(StringLengthAttribute), false).FirstOrDefault();
+                var exampleAttribute = (Example)property.GetCustomAttributes(typeof(Example), false).FirstOrDefault();
+                if (exampleAttribute != null)
+                    propDef.example = exampleAttribute.Description;
 
+                var stringAttribute = (StringLengthAttribute)property.GetCustomAttributes(typeof(StringLengthAttribute), false).FirstOrDefault();
                 if (stringAttribute != null)
                 {
                     propDef.maxLength = stringAttribute.MaximumLength;
@@ -379,11 +383,8 @@ namespace NCS.DSS.Transfer.APIDefinition
                 }
 
                 var regexAttribute = (RegularExpressionAttribute)property.GetCustomAttributes(typeof(RegularExpressionAttribute), false).FirstOrDefault();
-
                 if (regexAttribute != null)
-                {
                     propDef.pattern = regexAttribute.Pattern;
-                }
 
                 SetParameterType(property.PropertyType, propDef, definitions);
                 AddToExpando(objDef.properties, property.Name, propDef);
