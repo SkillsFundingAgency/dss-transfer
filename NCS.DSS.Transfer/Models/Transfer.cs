@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using NCS.DSS.WebChat.Annotations;
+using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.Models
 {
