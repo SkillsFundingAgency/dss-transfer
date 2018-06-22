@@ -12,9 +12,8 @@ namespace NCS.DSS.Transfer.DeleteTransferHttpTrigger
 {
     public static class DeleteTransferHttpTrigger
     {
+        [Disable]
         [FunctionName("Delete")]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfer deleted", ShowSchema = true)]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.NotFound, Description = "Supplied Transfer Id does not exist", ShowSchema = false)]
         [Display(Name = "Delete", Description = "Ability to delete an transfer record.")]
         public static HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId, string transferId)
         {

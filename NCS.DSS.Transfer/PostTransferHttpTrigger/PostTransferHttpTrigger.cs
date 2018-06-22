@@ -14,9 +14,12 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger
     {
         [FunctionName("Post")]
         [ResponseType(typeof(Models.Transfer))]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.Created, Description = "Transfer Created", ShowSchema = true)]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Unable to create Transfer", ShowSchema = false)]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Forbidden", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.Created, Description = "Transfer Created", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Transfer does not exist", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
+        [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Post", Description = "Ability to create a new transfer resource.")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId)
         {

@@ -15,8 +15,12 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger
     {
         [FunctionName("Patch")]
         [ResponseType(typeof(Models.Transfer))]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfer updated", ShowSchema = true)]
-        [TransferResponse(HttpStatusCode = (int)HttpStatusCode.NotFound, Description = "Supplied Transfer Id does not exist", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfer Updated", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Transfer does not exist", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
+        [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Patch", Description = "Ability to modify/update an transfer record.")]
         public static HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId, string transferId)
         {
