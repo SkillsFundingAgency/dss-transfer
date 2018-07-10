@@ -11,6 +11,11 @@ namespace NCS.DSS.Transfer.Models
         public Guid TransferId { get; set; }
 
         [Required]
+        [Display(Description = "Unique identifier of a customer.")]
+        [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
+        public Guid CustomerId { get; set; }
+
+        [Required]
         [Display(Description = "Unique identifier for the related interaction record.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         public Guid InteractionId { get; set; }
