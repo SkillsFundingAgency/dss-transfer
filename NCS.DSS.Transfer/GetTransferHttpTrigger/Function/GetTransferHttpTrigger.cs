@@ -7,9 +7,11 @@ using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Annotations;
+using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
 
-namespace NCS.DSS.Transfer.GetTransferHttpTrigger
+namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
 {
     public static class GetTransferHttpTrigger
     {
@@ -21,9 +23,9 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "Get", Description = "Ability to return all transfer records for a given customer.")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId)
         {
-            log.Info("Get Transfers C# HTTP trigger function processed a request.");
+            log.LogInformation("Get Transfers C# HTTP trigger function processed a request.");
 
             var service = new GetTransferHttpTriggerService();
             var values = await service.GetTransfers();

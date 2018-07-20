@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace NCS.DSS.Transfer.PostTransferHttpTrigger
+namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
 {
-    public class PostTransferHttpTriggerService
+    public class PostTransferHttpTriggerService : IPostTransferHttpTriggerService
     {
         public Guid? Create(Models.Transfer transfer)
         {

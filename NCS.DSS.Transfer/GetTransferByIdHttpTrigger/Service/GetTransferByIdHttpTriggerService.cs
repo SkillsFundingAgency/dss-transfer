@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace NCS.DSS.Transfer.GetTransferHttpTrigger
+namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service
 {
-    public class GetTransferHttpTriggerService
+    public class GetTransferByIdHttpTriggerService : IGetTransferByIdHttpTriggerService
     {
-        public async Task<List<Models.Transfer>> GetTransfers()
+        public async Task<Models.Transfer> GetTransfer(Guid transferId)
         {
-            var result = CreateTempTransfers();
+            var transfers = CreateTempTransfers();
+            var result = transfers.FirstOrDefault(a => a.TransferId == transferId);
             return await Task.FromResult(result);
         }
 
@@ -59,6 +61,5 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger
 
             return transfersList;
         }
-
     }
 }

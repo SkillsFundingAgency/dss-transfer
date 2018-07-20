@@ -6,9 +6,11 @@ using System.Web.Http.Description;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Annotations;
+using NCS.DSS.Transfer.PostTransferHttpTrigger.Service;
 
-namespace NCS.DSS.Transfer.PostTransferHttpTrigger
+namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 {
     public static class PostTransferHttpTrigger
     {
@@ -21,9 +23,9 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Post", Description = "Ability to create a new transfer resource.")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId)
         {
-            log.Info("Post Transfer C# HTTP trigger function processed a request.");
+            log.LogInformation("Post Transfer C# HTTP trigger function processed a request.");
 
             // Get request body
             var transfer = await req.Content.ReadAsAsync<Models.Transfer>();
