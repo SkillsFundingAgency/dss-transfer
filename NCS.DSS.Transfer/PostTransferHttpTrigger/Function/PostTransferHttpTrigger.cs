@@ -1,4 +1,6 @@
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,7 +10,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Annotations;
+using NCS.DSS.Transfer.Cosmos.Helper;
+using NCS.DSS.Transfer.Helpers;
+using NCS.DSS.Transfer.Ioc;
 using NCS.DSS.Transfer.PostTransferHttpTrigger.Service;
+using NCS.DSS.Transfer.Validation;
+using Newtonsoft.Json;
 
 namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 {
@@ -23,22 +30,54 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Post", Description = "Ability to create a new transfer resource.")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId,
+            [Inject]IResourceHelper resourceHelper,
+            [Inject]IHttpRequestMessageHelper httpRequestMessageHelper,
+            [Inject]IValidate validate,
+            [Inject]IPostTransferHttpTriggerService transferPatchService)
         {
             log.LogInformation("Post Transfer C# HTTP trigger function processed a request.");
 
-            // Get request body
-            var transfer = await req.Content.ReadAsAsync<Models.Transfer>();
+            if (!Guid.TryParse(customerId, out var customerGuid))
+                return HttpResponseMessageHelper.BadRequest(customerGuid);
 
-            var transferService = new PostTransferHttpTriggerService();
-            var transferId = transferService.Create(transfer);
+            if (!Guid.TryParse(interactionId, out var interactionGuid))
+                return HttpResponseMessageHelper.BadRequest(interactionGuid);
 
-            return transferId == null
-                ? new HttpResponseMessage(HttpStatusCode.BadRequest)
-                : new HttpResponseMessage(HttpStatusCode.Created)
-                {
-                    Content = new StringContent("Created Transfer record with Id of : " + transferId)
-                };
+            Models.Transfer transferRequest;
+
+            try
+            {
+                transferRequest = await httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(req);
+            }
+            catch (JsonException ex)
+            {
+                return HttpResponseMessageHelper.UnprocessableEntity(ex);
+            }
+
+            if (transferRequest == null)
+                return HttpResponseMessageHelper.UnprocessableEntity(req);
+
+            var errors = validate.ValidateResource(transferRequest);
+
+            if (errors != null && errors.Any())
+                return HttpResponseMessageHelper.UnprocessableEntity(errors);
+
+            var doesCustomerExist = resourceHelper.DoesCustomerExist(customerGuid);
+
+            if (!doesCustomerExist)
+                return HttpResponseMessageHelper.NoContent(customerGuid);
+
+            var doesInteractionExist = resourceHelper.DoesInteractionExist(interactionGuid);
+
+            if (!doesInteractionExist)
+                return HttpResponseMessageHelper.NoContent(interactionGuid);
+
+            var transfer = await transferPatchService.CreateAsync(transferRequest);
+
+            return transfer == null ?
+                HttpResponseMessageHelper.BadRequest(customerGuid) :
+                HttpResponseMessageHelper.Created(transfer);
         }
     }
 }

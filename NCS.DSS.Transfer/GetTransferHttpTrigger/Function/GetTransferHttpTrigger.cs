@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -9,7 +10,10 @@ using System.Threading.Tasks;
 using System.Web.Http.Description;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Annotations;
+using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
+using NCS.DSS.Transfer.Helpers;
+using NCS.DSS.Transfer.Ioc;
 
 namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
 {
@@ -23,18 +27,34 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "Get", Description = "Ability to return all transfer records for a given customer.")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId,
+            [Inject]IResourceHelper resourceHelper,
+            [Inject]IGetTransferHttpTriggerService transferGetService)
         {
             log.LogInformation("Get Transfers C# HTTP trigger function processed a request.");
 
-            var service = new GetTransferHttpTriggerService();
-            var values = await service.GetTransfers();
+            if (!Guid.TryParse(customerId, out var customerGuid))
+                return HttpResponseMessageHelper.BadRequest(customerGuid);
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(values),
-                    System.Text.Encoding.UTF8, "application/json")
-            };
+            if (!Guid.TryParse(interactionId, out var interactionGuid))
+                return HttpResponseMessageHelper.BadRequest(interactionGuid);
+
+            var doesCustomerExist = resourceHelper.DoesCustomerExist(customerGuid);
+
+            if (!doesCustomerExist)
+                return HttpResponseMessageHelper.NoContent(customerGuid);
+
+            var doesInteractionExist = resourceHelper.DoesInteractionExist(interactionGuid);
+
+            if (!doesInteractionExist)
+                return HttpResponseMessageHelper.NoContent(interactionGuid);
+
+            var transfers = await transferGetService.GetTransfersAsync(customerGuid);
+
+            return transfers == null ?
+                HttpResponseMessageHelper.NoContent(interactionGuid) :
+                HttpResponseMessageHelper.Ok(transfers);
+
         }
     }
 }

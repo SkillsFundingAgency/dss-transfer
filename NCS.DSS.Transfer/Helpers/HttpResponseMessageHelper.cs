@@ -102,7 +102,7 @@ namespace NCS.DSS.Transfer.Helpers
             };
         }
 
-        public static HttpResponseMessage UnprocessableEntity(JsonSerializationException requestException)
+        public static HttpResponseMessage UnprocessableEntity(JsonException requestException)
         {
             return new HttpResponseMessage((HttpStatusCode)422)
             {
