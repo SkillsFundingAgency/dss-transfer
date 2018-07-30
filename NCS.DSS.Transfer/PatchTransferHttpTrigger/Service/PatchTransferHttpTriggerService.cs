@@ -13,9 +13,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Service
             if (transferPatch == null)
                 return null;
 
-            if (!transferPatch.LastModifiedDate.HasValue)
-                transferPatch.LastModifiedDate = DateTime.Now;
-
+            transferPatch.SetDefaultValues();
             transfer.Patch(transferPatch);
 
             var documentDbProvider = new DocumentDBProvider();

@@ -12,11 +12,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
             if (transfer == null)
                 return null;
 
-            var transferId = Guid.NewGuid();
-            transfer.TransferId = transferId;
-
-            if (!transfer.LastModifiedDate.HasValue)
-                transfer.LastModifiedDate = DateTime.Now;
+            transfer.SetDefaultValues();
 
             var documentDbProvider = new DocumentDBProvider();
 
