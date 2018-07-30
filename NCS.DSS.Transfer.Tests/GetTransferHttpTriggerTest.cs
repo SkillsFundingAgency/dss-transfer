@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
+using NCS.DSS.Transfer.Helpers;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -21,6 +22,7 @@ namespace NCS.DSS.Transfer.Tests
         private ILogger _log;
         private HttpRequestMessage _request;
         private IResourceHelper _resourceHelper;
+        private IHttpRequestMessageHelper _httpRequestMessageHelper;
         private IGetTransferHttpTriggerService _getTransferHttpTriggerService;
 
         [SetUp]
@@ -36,7 +38,22 @@ namespace NCS.DSS.Transfer.Tests
             };
             _log = Substitute.For<ILogger>();
             _resourceHelper = Substitute.For<IResourceHelper>();
+            _httpRequestMessageHelper = Substitute.For<IHttpRequestMessageHelper>();
             _getTransferHttpTriggerService = Substitute.For<IGetTransferHttpTriggerService>();
+            _httpRequestMessageHelper.GetTouchpointId(_request).Returns(new Guid());
+        }
+
+        [Test]
+        public async Task GetTransferdHttpTrigger_ReturnsStatusCodeBadRequest_WhenTouchpointIdIsNotProvided()
+        {
+            _httpRequestMessageHelper.GetTouchpointId(_request).Returns((Guid?)null);
+
+            // Act
+            var result = await RunFunction(ValidCustomerId, ValidInteractionId);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Test]
@@ -124,7 +141,7 @@ namespace NCS.DSS.Transfer.Tests
         private async Task<HttpResponseMessage> RunFunction(string customerId, string interactionId)
         {
             return await GetTransferHttpTrigger.Function.GetTransferHttpTrigger.Run(
-                _request, _log, customerId, interactionId, _resourceHelper, _getTransferHttpTriggerService).ConfigureAwait(false);
+                _request, _log, customerId, interactionId, _resourceHelper, _httpRequestMessageHelper, _getTransferHttpTriggerService).ConfigureAwait(false);
         }
 
     }

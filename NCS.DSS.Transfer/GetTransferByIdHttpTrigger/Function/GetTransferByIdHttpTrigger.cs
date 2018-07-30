@@ -2,8 +2,6 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
@@ -29,9 +27,17 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
         [Display(Name = "Get", Description = "Ability to retrieve an individual transfer record.")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequestMessage req, ILogger log, string customerId, string interactionId, string transferId,
             [Inject]IResourceHelper resourceHelper,
+            [Inject]IHttpRequestMessageHelper httpRequestMessageHelper,
             [Inject]IGetTransferByIdHttpTriggerService transferByIdService)
         {
-            log.LogInformation("Get Transfer By Id C# HTTP trigger function  processed a request.");
+            var touchpointId = httpRequestMessageHelper.GetTouchpointId(req);
+            if (touchpointId == null)
+            {
+                log.LogInformation("Unable to locate 'APIM-TouchpointId' in request header.");
+                return HttpResponseMessageHelper.BadRequest();
+            }
+
+            log.LogInformation("Get Transfer By Id C# HTTP trigger function  processed a request. By Touchpoint. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
                 return HttpResponseMessageHelper.BadRequest(customerGuid);

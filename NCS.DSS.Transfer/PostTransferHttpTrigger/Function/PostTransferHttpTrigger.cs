@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Web.Http.Description;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Annotations;
 using NCS.DSS.Transfer.Cosmos.Helper;
@@ -36,7 +35,14 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             [Inject]IValidate validate,
             [Inject]IPostTransferHttpTriggerService transferPatchService)
         {
-            log.LogInformation("Post Transfer C# HTTP trigger function processed a request.");
+            var touchpointId = httpRequestMessageHelper.GetTouchpointId(req);
+            if (touchpointId == null)
+            {
+                log.LogInformation("Unable to locate 'APIM-TouchpointId' in request header.");
+                return HttpResponseMessageHelper.BadRequest();
+            }
+
+            log.LogInformation("Post Transfer C# HTTP trigger function processed a request. By Touchpoint. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
                 return HttpResponseMessageHelper.BadRequest(customerGuid);

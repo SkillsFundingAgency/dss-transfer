@@ -50,6 +50,20 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper = Substitute.For<IHttpRequestMessageHelper>();
             _validate = Substitute.For<IValidate>();
             _postTransferHttpTriggerService = Substitute.For<IPostTransferHttpTriggerService>();
+            _httpRequestMessageHelper.GetTouchpointId(_request).Returns(new Guid());
+        }
+
+        [Test]
+        public async Task PostTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenTouchpointIdIsNotProvided()
+        {
+            _httpRequestMessageHelper.GetTouchpointId(_request).Returns((Guid?)null);
+
+            // Act
+            var result = await RunFunction(ValidCustomerId, ValidInteractionId);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Test]

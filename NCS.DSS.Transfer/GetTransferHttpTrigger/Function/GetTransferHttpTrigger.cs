@@ -29,9 +29,17 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
         [Display(Name = "Get", Description = "Ability to return all transfer records for a given customer.")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId,
             [Inject]IResourceHelper resourceHelper,
+            [Inject]IHttpRequestMessageHelper httpRequestMessageHelper,
             [Inject]IGetTransferHttpTriggerService transferGetService)
         {
-            log.LogInformation("Get Transfers C# HTTP trigger function processed a request.");
+            var touchpointId = httpRequestMessageHelper.GetTouchpointId(req);
+            if (touchpointId == null)
+            {
+                log.LogInformation("Unable to locate 'APIM-TouchpointId' in request header.");
+                return HttpResponseMessageHelper.BadRequest();
+            }
+
+            log.LogInformation("Get Transfers C# HTTP trigger function processed a request. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
                 return HttpResponseMessageHelper.BadRequest(customerGuid);
