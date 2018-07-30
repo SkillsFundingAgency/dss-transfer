@@ -67,6 +67,8 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
             if (transferPatchRequest == null)
                 return HttpResponseMessageHelper.UnprocessableEntity(req);
 
+            transferPatchRequest.LastModifiedTouchpointId = touchpointId;
+
             var errors = validate.ValidateResource(transferPatchRequest);
 
             if (errors != null && errors.Any())
