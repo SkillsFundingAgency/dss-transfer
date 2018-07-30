@@ -69,6 +69,9 @@ namespace NCS.DSS.Transfer.Models
         {
             TransferId = Guid.NewGuid();
 
+            if (!DateandTimeOfTransfer.HasValue)
+                DateandTimeOfTransfer = DateTime.UtcNow;
+
             if (!LastModifiedDate.HasValue)
                 LastModifiedDate = DateTime.UtcNow;
         }
