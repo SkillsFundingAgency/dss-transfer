@@ -4,7 +4,7 @@ using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.Models
 {
-    public class Transfer
+    public class Transfer : ITransfer
     {
         [Display(Description = "Unique identifier of the transfer record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
@@ -30,6 +30,7 @@ namespace NCS.DSS.Transfer.Models
         [Example(Description = "91c56db7-f7a4-45af-aa4e-f0fd6c1a26cd")]
         public Guid? TargetTouchpointId { get; set; }
 
+        [Required]
         [StringLength(2000)]
         [Display(Description = "Context of the transfer.")]
         [Example(Description = "this is some text")]
@@ -63,6 +64,14 @@ namespace NCS.DSS.Transfer.Models
         [Display(Description = "Identifier of the touchpoint who made the last change to the record.")]
         [Example(Description = "d1307d77-af23-4cb4-b600-a60e04f8c3df")]
         public Guid? LastModifiedTouchpointId { get; set; }
+
+        public void SetDefaultValues()
+        {
+            TransferId = Guid.NewGuid();
+
+            if (!LastModifiedDate.HasValue)
+                LastModifiedDate = DateTime.UtcNow;
+        }
 
         public void Patch(TransferPatch transferPatch)
         {
