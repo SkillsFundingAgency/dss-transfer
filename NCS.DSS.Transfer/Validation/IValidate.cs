@@ -6,6 +6,6 @@ namespace NCS.DSS.Transfer.Validation
 {
     public interface IValidate
     {
-        List<ValidationResult> ValidateResource( ITransfer resource);
+        List<ValidationResult> ValidateResource(ITransfer resource, bool validateModelForPost);
     }
 }

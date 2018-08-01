@@ -107,7 +107,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
 
             var validationResults = new List<ValidationResult> { new ValidationResult("interaction Id is Required") };
-            _validate.ValidateResource(Arg.Any<TransferPatch>()).Returns(validationResults);
+            _validate.ValidateResource(Arg.Any<TransferPatch>(), false).Returns(validationResults);
 
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 

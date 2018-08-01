@@ -7,24 +7,27 @@ namespace NCS.DSS.Transfer.Validation
 {
     public class Validate : IValidate
     {
-        public List<ValidationResult> ValidateResource(ITransfer resource)
+        public List<ValidationResult> ValidateResource(ITransfer resource, bool validateModelForPost)
         {
             var context = new ValidationContext(resource, null, null);
             var results = new List<ValidationResult>();
 
             Validator.TryValidateObject(resource, context, results, true);
-            ValidateTransferRules(resource, results);
+            ValidateTransferRules(resource, results, validateModelForPost);
 
             return results;
         }
 
-        private void ValidateTransferRules(ITransfer transferResource, List<ValidationResult> results)
+        private void ValidateTransferRules(ITransfer transferResource, List<ValidationResult> results, bool validateModelForPost)
         {
             if (transferResource == null)
                 return;
 
-            if (string.IsNullOrWhiteSpace(transferResource.Context))
-                results.Add(new ValidationResult("Action Summary is a required field", new[] { "ActionSummary" }));
+            if (validateModelForPost)
+            {
+                if (string.IsNullOrWhiteSpace(transferResource.Context))
+                    results.Add(new ValidationResult("Action Summary is a required field", new[] { "ActionSummary" }));
+            }
 
             if (transferResource.DateandTimeOfTransfer.HasValue && transferResource.DateandTimeOfTransfer.Value > DateTime.UtcNow)
                 results.Add(new ValidationResult("Date and Time Of Transfer must be less the current date/time", new[] { "DateandTimeOfTransfer" }));
