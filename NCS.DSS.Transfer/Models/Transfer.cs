@@ -4,11 +4,17 @@ using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.Models
 {
-    public class Transfer
+    public class Transfer : ITransfer
     {
         [Display(Description = "Unique identifier of the transfer record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
-        public Guid TransferId { get; set; }
+        [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
+        public Guid? TransferId { get; set; }
+
+        [Required]
+        [Display(Description = "Unique identifier of a customer.")]
+        [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
+        public Guid? CustomerId { get; set; }
 
         [Required]
         [Display(Description = "Unique identifier of a customer.")]
@@ -18,17 +24,18 @@ namespace NCS.DSS.Transfer.Models
         [Required]
         [Display(Description = "Unique identifier for the related interaction record.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
-        public Guid InteractionId { get; set; }
+        public Guid? InteractionId { get; set; }
 
         [Required]
         [Display(Description = "Unique identifier of the touchpoint performing the transfer.")]
         [Example(Description = "a1e6d62b-b641-452d-bb25-12286f0a7ebc")]
-        public Guid OriginatingTouchpointId { get; set; }
+        public Guid? OriginatingTouchpointId { get; set; }
 
         [Required]
         [Example(Description = "91c56db7-f7a4-45af-aa4e-f0fd6c1a26cd")]
-        public Guid TargetTouchpointId { get; set; }
+        public Guid? TargetTouchpointId { get; set; }
 
+        [Required]
         [StringLength(2000)]
         [Display(Description = "Context of the transfer.")]
         [Example(Description = "this is some text")]
@@ -37,30 +44,72 @@ namespace NCS.DSS.Transfer.Models
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the transfer request was made.")]
         [Example(Description = "2018-06-20T13:45:00")]
-        public DateTime DateandTimeOfTransfer { get; set; }
+        public DateTime? DateandTimeOfTransfer { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the transfer request was accepted by the target touchpoint.")]
         [Example(Description = "2018-06-21T08:45:00")]
-        public DateTime DateandTimeofTransferAccepted { get; set; }
+        public DateTime? DateandTimeofTransferAccepted { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the customer wants to be called back.")]
         [Example(Description = "2018-06-27T08:45:00")]
-        public DateTime RequestedCallbackTime { get; set; }
+        public DateTime? RequestedCallbackTime { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the transfer was acted upon and the customer was contacted.")]
         [Example(Description = "2018-06-26T08:45:00")]
-        public DateTime ActualCallbackTime { get; set; }
+        public DateTime? ActualCallbackTime { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time of the last modification to the record.")]
         [Example(Description = "2018-06-28T08:00:00")]
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
 
         [Display(Description = "Identifier of the touchpoint who made the last change to the record.")]
         [Example(Description = "d1307d77-af23-4cb4-b600-a60e04f8c3df")]
-        public Guid LastModifiedTouchpointId { get; set; }
+        public Guid? LastModifiedTouchpointId { get; set; }
+
+        public void SetDefaultValues()
+        {
+            TransferId = Guid.NewGuid();
+
+            if (!DateandTimeOfTransfer.HasValue)
+                DateandTimeOfTransfer = DateTime.UtcNow;
+
+            if (!LastModifiedDate.HasValue)
+                LastModifiedDate = DateTime.UtcNow;
+        }
+
+        public void Patch(TransferPatch transferPatch)
+        {
+            if (transferPatch == null)
+                return;
+
+            if(transferPatch.TargetTouchpointId.HasValue)
+                TargetTouchpointId = transferPatch.TargetTouchpointId;
+
+            if(!string.IsNullOrEmpty(transferPatch.Context))
+                Context = transferPatch.Context;
+
+            if(transferPatch.DateandTimeOfTransfer.HasValue)
+                DateandTimeOfTransfer = transferPatch.DateandTimeOfTransfer;
+
+            if(transferPatch.DateandTimeofTransferAccepted.HasValue)
+                DateandTimeofTransferAccepted = transferPatch.DateandTimeofTransferAccepted;
+
+            if (transferPatch.RequestedCallbackTime.HasValue)
+                RequestedCallbackTime = transferPatch.RequestedCallbackTime;
+
+            if(transferPatch.ActualCallbackTime.HasValue)
+                ActualCallbackTime = transferPatch.ActualCallbackTime;
+
+            if(transferPatch.LastModifiedDate.HasValue)
+                LastModifiedDate = transferPatch.LastModifiedDate;
+
+            if(transferPatch.LastModifiedTouchpointId.HasValue)
+            LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
+        }
+
     }
 }
