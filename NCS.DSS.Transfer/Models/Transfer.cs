@@ -14,11 +14,6 @@ namespace NCS.DSS.Transfer.Models
         [Required]
         [Display(Description = "Unique identifier of a customer.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
-        public Guid? CustomerId { get; set; }
-
-        [Required]
-        [Display(Description = "Unique identifier of a customer.")]
-        [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         public Guid CustomerId { get; set; }
 
         [Required]
@@ -108,7 +103,7 @@ namespace NCS.DSS.Transfer.Models
                 LastModifiedDate = transferPatch.LastModifiedDate;
 
             if(transferPatch.LastModifiedTouchpointId.HasValue)
-            LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
+                LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
         }
 
     }
