@@ -85,7 +85,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 
             return transfer == null ?
                 HttpResponseMessageHelper.BadRequest(customerGuid) :
-                HttpResponseMessageHelper.Created(transfer);
+                HttpResponseMessageHelper.Created(JsonHelper.SerializeObject(transfer));
         }
     }
 }

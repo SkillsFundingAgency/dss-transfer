@@ -62,7 +62,7 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
 
             return transfer == null ?
                 HttpResponseMessageHelper.NoContent(transferGuid) :
-                HttpResponseMessageHelper.Ok(transfer);
+                HttpResponseMessageHelper.Ok(JsonHelper.SerializeObject(transfer));
 
         }
     }

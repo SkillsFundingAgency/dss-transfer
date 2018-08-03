@@ -93,7 +93,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 
             return updatedTransfer == null ?
                 HttpResponseMessageHelper.BadRequest(transferGuid) :
-                HttpResponseMessageHelper.Ok(updatedTransfer);
+                HttpResponseMessageHelper.Ok(JsonHelper.SerializeObject(updatedTransfer));
         }
     }
 }
