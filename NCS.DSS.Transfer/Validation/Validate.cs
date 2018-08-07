@@ -26,7 +26,7 @@ namespace NCS.DSS.Transfer.Validation
             if (validateModelForPost)
             {
                 if (string.IsNullOrWhiteSpace(transferResource.Context))
-                    results.Add(new ValidationResult("Action Summary is a required field", new[] { "ActionSummary" }));
+                    results.Add(new ValidationResult("Context must have a value", new[] { "Context" }));
             }
 
             if (transferResource.DateandTimeOfTransfer.HasValue && transferResource.DateandTimeOfTransfer.Value > DateTime.UtcNow)
