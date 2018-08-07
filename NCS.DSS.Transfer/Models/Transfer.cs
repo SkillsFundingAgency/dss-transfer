@@ -22,13 +22,16 @@ namespace NCS.DSS.Transfer.Models
         public Guid? InteractionId { get; set; }
 
         [Required]
-        [Display(Description = "Unique identifier of the touchpoint performing the transfer.")]
-        [Example(Description = "a1e6d62b-b641-452d-bb25-12286f0a7ebc")]
-        public Guid? OriginatingTouchpointId { get; set; }
+        [StringLength(10, MinimumLength = 10)]
+        [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
+        [Example(Description = "0000000001")]
+        public string OriginatingTouchpointId { get; set; }
 
         [Required]
-        [Example(Description = "91c56db7-f7a4-45af-aa4e-f0fd6c1a26cd")]
-        public Guid? TargetTouchpointId { get; set; }
+        [StringLength(10, MinimumLength = 10)]
+        [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
+        [Example(Description = "0000000001")]
+        public string TargetTouchpointId { get; set; }
 
         [Required]
         [StringLength(2000)]
@@ -61,9 +64,10 @@ namespace NCS.DSS.Transfer.Models
         [Example(Description = "2018-06-28T08:00:00")]
         public DateTime? LastModifiedDate { get; set; }
 
-        [Display(Description = "Identifier of the touchpoint who made the last change to the record.")]
-        [Example(Description = "d1307d77-af23-4cb4-b600-a60e04f8c3df")]
-        public Guid? LastModifiedTouchpointId { get; set; }
+        [StringLength(10, MinimumLength = 10)]
+        [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
+        [Example(Description = "0000000001")]
+        public string LastModifiedTouchpointId { get; set; }
 
         public void SetDefaultValues()
         {
@@ -81,7 +85,7 @@ namespace NCS.DSS.Transfer.Models
             if (transferPatch == null)
                 return;
 
-            if(transferPatch.TargetTouchpointId.HasValue)
+            if(!string.IsNullOrEmpty(transferPatch.TargetTouchpointId))
                 TargetTouchpointId = transferPatch.TargetTouchpointId;
 
             if(!string.IsNullOrEmpty(transferPatch.Context))
@@ -102,7 +106,7 @@ namespace NCS.DSS.Transfer.Models
             if(transferPatch.LastModifiedDate.HasValue)
                 LastModifiedDate = transferPatch.LastModifiedDate;
 
-            if(transferPatch.LastModifiedTouchpointId.HasValue)
+            if(string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
                 LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
         }
 

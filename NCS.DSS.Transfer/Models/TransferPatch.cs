@@ -6,8 +6,10 @@ namespace NCS.DSS.Transfer.Models
 {
     public class TransferPatch : ITransfer
     {
-        [Example(Description = "91c56db7-f7a4-45af-aa4e-f0fd6c1a26cd")]
-        public Guid? TargetTouchpointId { get; set; }
+        [StringLength(10, MinimumLength = 10)]
+        [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
+        [Example(Description = "0000000001")]
+        public string TargetTouchpointId { get; set; }
 
         [StringLength(2000)]
         [Display(Description = "Context of the transfer.")]
@@ -39,9 +41,10 @@ namespace NCS.DSS.Transfer.Models
         [Example(Description = "2018-06-28T08:00:00")]
         public DateTime? LastModifiedDate { get; set; }
 
-        [Display(Description = "Identifier of the touchpoint who made the last change to the record.")]
-        [Example(Description = "d1307d77-af23-4cb4-b600-a60e04f8c3df")]
-        public Guid? LastModifiedTouchpointId { get; set; }
+        [StringLength(10, MinimumLength = 10)]
+        [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
+        [Example(Description = "0000000001")]
+        public string LastModifiedTouchpointId { get; set; }
 
         public void SetDefaultValues()
         {

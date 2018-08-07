@@ -7,6 +7,6 @@ namespace NCS.DSS.Transfer.Helpers
     public interface IHttpRequestMessageHelper
     {
         Task<T> GetTransferFromRequest<T>(HttpRequestMessage req);
-        Guid? GetTouchpointId(HttpRequestMessage req);
+        string GetTouchpointId(HttpRequestMessage req);
     }
 }
