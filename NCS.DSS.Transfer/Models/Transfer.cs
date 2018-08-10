@@ -11,17 +11,14 @@ namespace NCS.DSS.Transfer.Models
         [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
         public Guid? TransferId { get; set; }
 
-        [Required]
         [Display(Description = "Unique identifier of a customer.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         public Guid CustomerId { get; set; }
 
-        [Required]
         [Display(Description = "Unique identifier for the related interaction record.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         public Guid? InteractionId { get; set; }
 
-        [Required]
         [StringLength(10, MinimumLength = 10)]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "0000000001")]
@@ -71,13 +68,20 @@ namespace NCS.DSS.Transfer.Models
 
         public void SetDefaultValues()
         {
-            TransferId = Guid.NewGuid();
 
             if (!DateandTimeOfTransfer.HasValue)
                 DateandTimeOfTransfer = DateTime.UtcNow;
 
             if (!LastModifiedDate.HasValue)
                 LastModifiedDate = DateTime.UtcNow;
+        }
+
+        public void SetIds(Guid customerId, Guid interactionId, string touchpointId)
+        {
+            TransferId = Guid.NewGuid();
+            CustomerId = customerId;
+            InteractionId = interactionId;
+            LastModifiedTouchpointId = touchpointId;
         }
 
         public void Patch(TransferPatch transferPatch)

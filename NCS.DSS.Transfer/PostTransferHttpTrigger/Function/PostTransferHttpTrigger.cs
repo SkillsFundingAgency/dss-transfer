@@ -64,7 +64,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             if (transferRequest == null)
                 return HttpResponseMessageHelper.UnprocessableEntity(req);
 
-            transferRequest.LastModifiedTouchpointId = touchpointId;
+            transferRequest.SetIds(customerGuid, interactionGuid, touchpointId);
 
             var errors = validate.ValidateResource(transferRequest, true);
 
