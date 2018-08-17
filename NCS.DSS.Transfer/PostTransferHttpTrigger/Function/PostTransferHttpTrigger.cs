@@ -33,7 +33,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             [Inject]IResourceHelper resourceHelper,
             [Inject]IHttpRequestMessageHelper httpRequestMessageHelper,
             [Inject]IValidate validate,
-            [Inject]IPostTransferHttpTriggerService transferPatchService)
+            [Inject]IPostTransferHttpTriggerService transferPostService)
         {
             var touchpointId = httpRequestMessageHelper.GetTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -81,7 +81,10 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             if (!doesInteractionExist)
                 return HttpResponseMessageHelper.NoContent(interactionGuid);
 
-            var transfer = await transferPatchService.CreateAsync(transferRequest);
+            var transfer = await transferPostService.CreateAsync(transferRequest);
+
+            if (transfer != null)
+                await transferPostService.SendToServiceBusQueueAsync(transfer, req.RequestUri.AbsoluteUri);
 
             return transfer == null ?
                 HttpResponseMessageHelper.BadRequest(customerGuid) :

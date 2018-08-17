@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using NCS.DSS.Transfer.Cosmos.Provider;
+using NCS.DSS.Transfer.ServiceBus;
 
 namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
 {
@@ -19,6 +20,11 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
             var response = await documentDbProvider.CreateTransferAsync(transfer);
 
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
+        }
+
+        public async Task SendToServiceBusQueueAsync(Models.Transfer transfer, string reqUrl)
+        {
+            await ServiceBusClient.SendPostMessageAsync(transfer, reqUrl);
         }
     }
 }

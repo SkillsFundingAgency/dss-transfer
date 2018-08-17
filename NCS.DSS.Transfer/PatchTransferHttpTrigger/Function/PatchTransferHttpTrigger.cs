@@ -91,6 +91,9 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 
             var updatedTransfer = await transferPatchService.UpdateAsync(transfer, transferPatchRequest);
 
+            if (updatedTransfer != null)
+                await transferPatchService.SendToServiceBusQueueAsync(transfer, customerGuid, req.RequestUri.AbsoluteUri);
+
             return updatedTransfer == null ?
                 HttpResponseMessageHelper.BadRequest(transferGuid) :
                 HttpResponseMessageHelper.Ok(JsonHelper.SerializeObject(updatedTransfer));

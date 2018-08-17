@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using NCS.DSS.Transfer.Cosmos.Provider;
 using NCS.DSS.Transfer.Models;
+using NCS.DSS.Transfer.ServiceBus;
 
 namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Service
 {
@@ -30,6 +31,11 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Service
             var transfer = await documentDbProvider.GetTransferForCustomerAsync(customerId, transferId);
 
             return transfer;
+        }
+
+        public async Task SendToServiceBusQueueAsync(Models.Transfer transfer, Guid customerId, string reqUrl)
+        {
+            await ServiceBusClient.SendPatchMessageAsync(transfer, customerId, reqUrl);
         }
     }
 }
