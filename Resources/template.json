@@ -79,20 +79,16 @@
                 "cosmosDbKey": {
                   "value": "[parameters('cosmosDbKey')]"
                 },
-                {
-                  "name": "KeyName",
-                  "value": "[parameters('serviceBusAccessKeyName')]"
-                },
-                {
-                  "name": "AccessKey",
+                "serviceBusAccessKey": {
                   "value": "[parameters('serviceBusAccessKey')]"
                 },
-                {
-                  "name": "BaseAddress",
+                "serviceBusAccessKeyName": {
+                  "value": "[parameters('serviceBusAccessKeyName')]"
+                },
+                "serviceBusBaseAddress": {
                   "value": "[parameters('serviceBusBaseAddress')]"
                 },
-                {
-                  "name": "QueueName",
+                "serviceBusQueueName": {
                   "value": "[parameters('serviceBusQueueName')]"
                 }
               }
