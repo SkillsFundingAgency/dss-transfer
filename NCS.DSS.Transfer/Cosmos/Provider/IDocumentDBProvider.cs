@@ -10,6 +10,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
     public interface IDocumentDBProvider
     {
         bool DoesCustomerResourceExist(Guid customerId);
+        Task<bool> DoesCustomerHaveATerminationDate(Guid customerId);
         bool DoesInteractionResourceExist(Guid interactionId);
         Task<List<Models.Transfer>> GetTransfersForCustomerAsync(Guid customerId);
         Task<Models.Transfer> GetTransferForCustomerAsync(Guid customerId, Guid transferId);
