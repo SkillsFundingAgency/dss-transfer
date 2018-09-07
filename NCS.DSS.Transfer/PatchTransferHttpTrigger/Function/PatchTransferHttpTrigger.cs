@@ -42,6 +42,13 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
                 return HttpResponseMessageHelper.BadRequest();
             }
 
+            var ApimURL = httpRequestMessageHelper.GetApimURL(req);
+            if (string.IsNullOrEmpty(ApimURL))
+            {
+                log.LogInformation("Unable to locate 'apimurl' in request header");
+                return HttpResponseMessageHelper.BadRequest();
+            }
+
             log.LogInformation("Patch Transfer C# HTTP trigger function processed a request. By Touchpoint. " + touchpointId); 
 
             if (!Guid.TryParse(customerId, out var customerGuid))
@@ -97,7 +104,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
             var updatedTransfer = await transferPatchService.UpdateAsync(transfer, transferPatchRequest);
 
             if (updatedTransfer != null)
-                await transferPatchService.SendToServiceBusQueueAsync(transfer, customerGuid, req.RequestUri.AbsoluteUri);
+                await transferPatchService.SendToServiceBusQueueAsync(transfer, customerGuid, ApimURL);
 
             return updatedTransfer == null ?
                 HttpResponseMessageHelper.BadRequest(transferGuid) :

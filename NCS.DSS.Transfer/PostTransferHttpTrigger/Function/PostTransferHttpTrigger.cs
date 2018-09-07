@@ -42,6 +42,13 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
                 return HttpResponseMessageHelper.BadRequest();
             }
 
+            var ApimURL = httpRequestMessageHelper.GetApimURL(req);
+            if (string.IsNullOrEmpty(ApimURL))
+            {
+                log.LogInformation("Unable to locate 'apimurl' in request header");
+                return HttpResponseMessageHelper.BadRequest();
+            }
+
             log.LogInformation("Post Transfer C# HTTP trigger function processed a request. By Touchpoint. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
@@ -89,7 +96,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             var transfer = await transferPostService.CreateAsync(transferRequest);
 
             if (transfer != null)
-                await transferPostService.SendToServiceBusQueueAsync(transfer, req.RequestUri.AbsoluteUri);
+                await transferPostService.SendToServiceBusQueueAsync(transfer, ApimURL);
 
             return transfer == null ?
                 HttpResponseMessageHelper.BadRequest(customerGuid) :
