@@ -27,7 +27,7 @@ namespace NCS.DSS.Transfer.ServiceBus
                 TitleMessage = "New Transfer record {" + transfer.TransferId + "} added at " + DateTime.UtcNow,
                 CustomerGuid = transfer.CustomerId,
                 LastModifiedDate = transfer.LastModifiedDate,
-                URL = reqUrl + transfer.TransferId,
+                URL = reqUrl + "/" + transfer.TransferId,
                 IsNewCustomer = false,
                 TouchpointId = transfer.LastModifiedTouchpointId
             };
