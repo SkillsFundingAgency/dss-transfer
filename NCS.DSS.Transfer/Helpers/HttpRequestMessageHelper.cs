@@ -44,6 +44,5 @@ namespace NCS.DSS.Transfer.Helpers
 
             return string.IsNullOrEmpty(ApimURL) ? string.Empty : ApimURL;
         }
-
     }
 }
