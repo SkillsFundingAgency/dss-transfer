@@ -7,6 +7,5 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
     {
         Task<Models.Transfer> CreateAsync(Models.Transfer transfer);
         Task SendToServiceBusQueueAsync(Models.Transfer transfer, string reqUrl);
-
     }
 }

@@ -24,7 +24,8 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
 
         public async Task SendToServiceBusQueueAsync(Models.Transfer transfer, string reqUrl)
         {
-            await ServiceBusClient.SendPostMessageAsync(transfer, reqUrl);
+            await ServiceBusClient.SendPostMessageAsync_Target(transfer, reqUrl);
+            await ServiceBusClient.SendPostMessageAsync_Originator(transfer, reqUrl);
         }
     }
 }
