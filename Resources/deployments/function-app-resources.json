@@ -97,6 +97,14 @@
               "value": "interactions"
             },
             {
+              "name": "SubscriptionCollectionId",
+              "value": "subscriptions"
+            },
+            {
+              "name": "SubscriptionDatabaseId",
+              "value": "subscriptions"
+            },
+            {
               "name": "KeyName",
               "value": "[parameters('serviceBusAccessKeyName')]"
             },
