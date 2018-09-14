@@ -23,7 +23,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 
         public async Task<List<Models.Subscriptions>> GetSubscriptionsByCustomerIdAsync(Guid? customerId)
         {
-            var collectionUri = _documentDbHelper.CreateDocumentCollectionUri();
+            var collectionUri = _documentDbHelper.CreateSubscriptionDocumentCollectionUri();
 
             var client = _databaseClient.CreateDocumentClient();
 
@@ -49,7 +49,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 
         public async Task<ResourceResponse<Document>> CreateSubscriptionsAsync(Models.Subscriptions subscriptions)
         {
-            var collectionUri = _documentDbHelper.CreateDocumentCollectionUri();
+            var collectionUri = _documentDbHelper.CreateSubscriptionDocumentCollectionUri();
 
             var client = _databaseClient.CreateDocumentClient();
 

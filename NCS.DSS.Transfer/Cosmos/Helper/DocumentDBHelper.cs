@@ -20,6 +20,9 @@ namespace NCS.DSS.Transfer.Cosmos.Helper
         private readonly string _interactionDatabaseId = ConfigurationManager.AppSettings["InteractionDatabaseId"];
         private readonly string _interactionCollectionId = ConfigurationManager.AppSettings["InteractionCollectionId"];
 
+        private Uri _subscriptionDocumentCollectionUri;
+        private readonly string _subscriptionDatabaseId = ConfigurationManager.AppSettings["SubscriptionDatabaseId"];
+        private readonly string _subscriptionCollectionId = ConfigurationManager.AppSettings["SubscriptionCollectionId"];
 
         public Uri CreateDocumentCollectionUri()
         {
@@ -70,6 +73,21 @@ namespace NCS.DSS.Transfer.Cosmos.Helper
                 _interactionDatabaseId, _interactionCollectionId);
 
             return _interactionDocumentCollectionUri;
+        }
+
+        #endregion
+
+        #region SubscriptionDB
+
+        public Uri CreateSubscriptionDocumentCollectionUri()
+        {
+            if (_subscriptionDocumentCollectionUri != null)
+                return _subscriptionDocumentCollectionUri;
+
+            _subscriptionDocumentCollectionUri = UriFactory.CreateDocumentCollectionUri(
+                _subscriptionDatabaseId, _subscriptionCollectionId);
+
+            return _subscriptionDocumentCollectionUri;
         }
 
         #endregion   
