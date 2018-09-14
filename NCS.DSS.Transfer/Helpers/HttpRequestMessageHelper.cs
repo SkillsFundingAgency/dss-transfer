@@ -42,6 +42,9 @@ namespace NCS.DSS.Transfer.Helpers
 
             var ApimURL = req.Headers.GetValues("apimurl").FirstOrDefault();
 
+            if (ApimURL.EndsWith("/"))
+                ApimURL = ApimURL.Substring(0, ApimURL.Length - 1);
+
             return string.IsNullOrEmpty(ApimURL) ? string.Empty : ApimURL;
         }
     }
