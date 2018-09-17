@@ -110,7 +110,7 @@ namespace NCS.DSS.Transfer.Models
             if(transferPatch.LastModifiedDate.HasValue)
                 LastModifiedDate = transferPatch.LastModifiedDate;
 
-            if(string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
+            if(!string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
                 LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
         }
 
