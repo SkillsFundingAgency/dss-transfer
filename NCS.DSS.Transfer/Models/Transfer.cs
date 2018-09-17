@@ -82,6 +82,7 @@ namespace NCS.DSS.Transfer.Models
             CustomerId = customerId;
             InteractionId = interactionId;
             LastModifiedTouchpointId = touchpointId;
+            OriginatingTouchpointId = touchpointId;
         }
 
         public void Patch(TransferPatch transferPatch)
