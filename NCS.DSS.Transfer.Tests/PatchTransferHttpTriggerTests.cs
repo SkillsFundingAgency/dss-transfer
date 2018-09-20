@@ -53,6 +53,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper = Substitute.For<IHttpRequestMessageHelper>();
             _patchTransferHttpTriggerService = Substitute.For<IPatchTransferHttpTriggerService>();
             _httpRequestMessageHelper.GetTouchpointId(_request).Returns("0000000001");
+            _httpRequestMessageHelper.GetApimURL(_request).Returns("http://localhost:7071/");
         }
 
         [Test]
