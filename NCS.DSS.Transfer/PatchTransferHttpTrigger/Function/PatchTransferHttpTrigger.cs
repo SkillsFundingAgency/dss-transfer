@@ -91,7 +91,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
             if (isCustomerReadOnly)
                 return HttpResponseMessageHelper.Forbidden(customerGuid);
 
-            var doesInteractionExist = await resourceHelper.DoesInteractionExist(interactionGuid);
+            var doesInteractionExist = resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(interactionGuid, customerGuid);
 
             if (!doesInteractionExist)
                 return HttpResponseMessageHelper.NoContent(interactionGuid);

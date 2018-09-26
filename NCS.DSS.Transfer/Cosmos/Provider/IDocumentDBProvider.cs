@@ -10,7 +10,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
     {
         Task<bool> DoesCustomerResourceExist(Guid customerId);
         Task<bool> DoesCustomerHaveATerminationDate(Guid customerId);
-        Task<bool> DoesInteractionResourceExist(Guid interactionId);
+        bool DoesInteractionResourceExistAndBelongToCustomer(Guid interactionId, Guid customerId);
         Task<List<Models.Transfer>> GetTransfersForCustomerAsync(Guid customerId);
         Task<Models.Transfer> GetTransferForCustomerAsync(Guid customerId, Guid transferId);
         Task<ResourceResponse<Document>> CreateTransferAsync(Models.Transfer transfer);
