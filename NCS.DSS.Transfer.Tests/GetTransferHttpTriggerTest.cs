@@ -95,7 +95,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenInteractionDoesNotExist()
         {
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(false);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(false);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -109,7 +109,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenTransferDoesNotExist()
         {
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(false);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(false);
 
             _getTransferHttpTriggerService.GetTransfersAsync(Arg.Any<Guid>()).Returns(Task.FromResult<List<Models.Transfer>>(null).Result);
 
@@ -125,7 +125,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeOk_WhenTransferExists()
         {
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(true);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
 
             var listOfTransferes = new List<Models.Transfer>();
             _getTransferHttpTriggerService.GetTransfersAsync(Arg.Any<Guid>()).Returns(Task.FromResult<List<Models.Transfer>>(listOfTransferes).Result);

@@ -136,7 +136,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(_request).Returns(Task.FromResult(_transfer).Result);
 
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(false);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(false);
 
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
 
@@ -151,7 +151,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(_request).Returns(Task.FromResult(_transfer).Result);
 
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(true);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
 
             _postTransferHttpTriggerService.CreateAsync(Arg.Any<Models.Transfer>()).Returns(Task.FromResult<Models.Transfer>(null).Result);
 
@@ -168,7 +168,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(_request).Returns(Task.FromResult(_transfer).Result);
 
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(true);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
 
             _postTransferHttpTriggerService.CreateAsync(Arg.Any<Models.Transfer>()).Returns(Task.FromResult<Models.Transfer>(null).Result);
 
@@ -185,7 +185,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(_request).Returns(Task.FromResult(_transfer).Result);
 
             _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-            _resourceHelper.DoesInteractionExist(Arg.Any<Guid>()).Returns(true);
+            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
 
             _postTransferHttpTriggerService.CreateAsync(Arg.Any<Models.Transfer>()).Returns(Task.FromResult<Models.Transfer>(_transfer).Result);
 
