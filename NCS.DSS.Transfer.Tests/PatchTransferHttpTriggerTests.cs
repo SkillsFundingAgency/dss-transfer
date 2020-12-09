@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.Helpers;
 using NCS.DSS.Transfer.Models;
 using NCS.DSS.Transfer.PatchTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Validation;
 using Newtonsoft.Json;
-using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.Transfer.Tests
 {
@@ -24,42 +23,43 @@ namespace NCS.DSS.Transfer.Tests
         private const string ValidInteractionId = "1e1a555c-9633-4e12-ab28-09ed60d51cb3";
         private const string InValidId = "1111111-2222-3333-4444-555555555555";
         private const string ValidTransferId = "d5369b9a-6959-4bd3-92fc-1583e72b7e51";
-        private ILogger _log;
+        private Mock<ILogger> _log;
         private HttpRequestMessage _request;
-        private IResourceHelper _resourceHelper;
+        private Mock<IResourceHelper> _resourceHelper;
         private IValidate _validate;
-        private IHttpRequestMessageHelper _httpRequestMessageHelper;
-        private IPatchTransferHttpTriggerService _patchTransferHttpTriggerService;
+        private Mock<IHttpRequestMessageHelper> _httpRequestMessageHelper;
+        private Mock<IPatchTransferHttpTriggerService> _patchTransferHttpTriggerService;
         private Models.Transfer _transfer;
         private TransferPatch _transferPatch;
+        private PatchTransferHttpTrigger.Function.PatchTransferHttpTrigger _function;
 
         [SetUp]
         public void Setup()
         {
-            _transfer = Substitute.For<Models.Transfer>();
-            _transferPatch = Substitute.For<TransferPatch>();
+            _transfer = new Models.Transfer();
+            _transferPatch = new TransferPatch();
 
             _request = new HttpRequestMessage()
             {
                 Content = new StringContent(string.Empty),
-                RequestUri = 
+                RequestUri =
                     new Uri($"http://localhost:7071/api/Customers/7E467BDB-213F-407A-B86A-1954053D3C24/" +
                             $"Transfer/1e1a555c-9633-4e12-ab28-09ed60d51cb3")
             };
 
-            _log = Substitute.For<ILogger>();
-            _resourceHelper = Substitute.For<IResourceHelper>();
-            _validate = Substitute.For<IValidate>();
-            _httpRequestMessageHelper = Substitute.For<IHttpRequestMessageHelper>();
-            _patchTransferHttpTriggerService = Substitute.For<IPatchTransferHttpTriggerService>();
-            _httpRequestMessageHelper.GetTouchpointId(_request).Returns("0000000001");
-            _httpRequestMessageHelper.GetApimURL(_request).Returns("http://localhost:7071/");
+            _log = new Mock<ILogger>();
+            _resourceHelper = new Mock<IResourceHelper>();
+            _validate = new Validate();
+            _httpRequestMessageHelper = new Mock<IHttpRequestMessageHelper>();
+            _patchTransferHttpTriggerService = new Mock<IPatchTransferHttpTriggerService>();
+            _function = new PatchTransferHttpTrigger.Function.PatchTransferHttpTrigger(_resourceHelper.Object, _httpRequestMessageHelper.Object, _validate, _patchTransferHttpTriggerService.Object);
         }
 
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenTouchpointIdIsNotProvided()
         {
-            _httpRequestMessageHelper.GetTouchpointId(_request).Returns((string)null);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x=>x.GetTouchpointId(_request)).Returns((string)null);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
@@ -72,6 +72,10 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenCustomerIdIsInvalid()
         {
+            // Arrange
+            _httpRequestMessageHelper.Setup(x=>x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x=>x.GetApimURL(_request)).Returns("http://localhost:7071/");
+
             // Act
             var result = await RunFunction(InValidId, ValidInteractionId, ValidTransferId);
 
@@ -83,6 +87,10 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenInteractionIdIsInvalid()
         {
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+
             // Act
             var result = await RunFunction(ValidCustomerId, InValidId, ValidTransferId);
 
@@ -94,6 +102,10 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenTransferIdIsInvalid()
         {
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, InValidId);
 
@@ -105,11 +117,16 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeUnprocessableEntity_WhenTransferHasFailedValidation()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
-
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            var val = new Mock<IValidate>();
             var validationResults = new List<ValidationResult> { new ValidationResult("interaction Id is Required") };
-            _validate.ValidateResource(Arg.Any<TransferPatch>(), false).Returns(validationResults);
+            val.Setup(x=>x.ValidateResource(It.IsAny<TransferPatch>(), false)).Returns(validationResults);
+            _function = new PatchTransferHttpTrigger.Function.PatchTransferHttpTrigger(_resourceHelper.Object, _httpRequestMessageHelper.Object, val.Object, _patchTransferHttpTriggerService.Object);
 
+            // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 
             // Assert
@@ -120,8 +137,12 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeUnprocessableEntity_WhenTransferRequestIsInvalid()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(_request).Throws(new JsonException());
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<Models.Transfer>(_request)).Throws(new JsonException());
 
+            // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 
             // Assert
@@ -132,10 +153,13 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenCustomerDoesNotExist()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(false);
-
+            // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 
             // Assert
@@ -146,11 +170,12 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenTransferDoesNotExist()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
-
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-
-            _patchTransferHttpTriggerService.GetTransferForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(Task.FromResult<Models.Transfer>(null).Result);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _patchTransferHttpTriggerService.Setup(x => x.GetTransferForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult<Models.Transfer>(null));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
@@ -163,10 +188,12 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenInteractionDoesNotExist()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
-
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(false);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
@@ -179,12 +206,13 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeOk_WhenTransferDoesNotExist()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
-
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
-
-            _patchTransferHttpTriggerService.GetTransferForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(Task.FromResult<Models.Transfer>(null).Result);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _patchTransferHttpTriggerService.Setup(x=>x.GetTransferForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult<Models.Transfer>(null));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
@@ -197,15 +225,16 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenUnableToUpdateTransferRecord()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _patchTransferHttpTriggerService.Setup(x=>x.GetTransferForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(_transfer));
+            _patchTransferHttpTriggerService.Setup(x=>x.UpdateAsync(It.IsAny<Models.Transfer>(), It.IsAny<TransferPatch>())).Returns(Task.FromResult<Models.Transfer>(null));
 
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
-
-            _patchTransferHttpTriggerService.GetTransferForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(Task.FromResult(_transfer).Result);
-
-            _patchTransferHttpTriggerService.UpdateAsync(Arg.Any<Models.Transfer>(), Arg.Any<TransferPatch>()).Returns(Task.FromResult<Models.Transfer>(null).Result);
-
+            // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 
             // Assert
@@ -216,15 +245,16 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeOK_WhenRequestIsNotValid()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x => x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _patchTransferHttpTriggerService.Setup(x=>x.GetTransferForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(_transfer));
+            _patchTransferHttpTriggerService.Setup(x=>x.UpdateAsync(It.IsAny<Models.Transfer>(), It.IsAny<TransferPatch>())).Returns(Task.FromResult<Models.Transfer>(null));
 
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
-
-            _patchTransferHttpTriggerService.GetTransferForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(Task.FromResult(_transfer).Result);
-
-            _patchTransferHttpTriggerService.UpdateAsync(Arg.Any<Models.Transfer>(), Arg.Any<TransferPatch>()).Returns(Task.FromResult<Models.Transfer>(null).Result);
-
+            // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 
             // Assert
@@ -235,15 +265,16 @@ namespace NCS.DSS.Transfer.Tests
         [Test]
         public async Task PatchTransferHttpTrigger_ReturnsStatusCodeOK_WhenRequestIsValid()
         {
-            _httpRequestMessageHelper.GetTransferFromRequest<TransferPatch>(_request).Returns(Task.FromResult(_transferPatch).Result);
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetApimURL(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x=>x.GetTransferFromRequest<TransferPatch>(_request)).Returns(Task.FromResult(_transferPatch));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _patchTransferHttpTriggerService.Setup(x=>x.GetTransferForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(_transfer));
+            _patchTransferHttpTriggerService.Setup(x=>x.UpdateAsync(It.IsAny<Models.Transfer>(), It.IsAny<TransferPatch>())).Returns(Task.FromResult(_transfer));
 
-            _resourceHelper.DoesCustomerExist(Arg.Any<Guid>()).ReturnsForAnyArgs(true);
-            _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(true);
-
-            _patchTransferHttpTriggerService.GetTransferForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(Task.FromResult(_transfer).Result);
-
-            _patchTransferHttpTriggerService.UpdateAsync(Arg.Any<Models.Transfer>(), Arg.Any<TransferPatch>()).Returns(Task.FromResult(_transfer).Result);
-
+            // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId, ValidTransferId);
 
             // Assert
@@ -253,8 +284,8 @@ namespace NCS.DSS.Transfer.Tests
 
         private async Task<HttpResponseMessage> RunFunction(string customerId, string interactionId, string transferId)
         {
-            return await PatchTransferHttpTrigger.Function.PatchTransferHttpTrigger.Run(
-                _request, _log, customerId, interactionId, transferId, _resourceHelper, _httpRequestMessageHelper, _validate, _patchTransferHttpTriggerService).ConfigureAwait(false);
+            return await _function.Run(
+                _request, _log.Object, customerId, interactionId, transferId).ConfigureAwait(false);
         }
 
     }

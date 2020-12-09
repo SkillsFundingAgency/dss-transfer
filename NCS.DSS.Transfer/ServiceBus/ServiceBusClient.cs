@@ -1,23 +1,20 @@
-﻿using System;
-using System.Configuration;
-using System.IO;
+﻿using Microsoft.Azure.ServiceBus;
+using NCS.DSS.Transfer.Cosmos.Helper;
+using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
-using NCS.DSS.Transfer.Cosmos.Helper;
-using Newtonsoft.Json;
 
 namespace NCS.DSS.Transfer.ServiceBus
 {
 
     public static class ServiceBusClient
     {
-        public static readonly string KeyName = ConfigurationManager.AppSettings["KeyName"];
-        public static readonly string AccessKey = ConfigurationManager.AppSettings["AccessKey"];
-        public static readonly string BaseAddress = ConfigurationManager.AppSettings["BaseAddress"];
-        public static readonly string QueueName = ConfigurationManager.AppSettings["QueueName"];
+        public static readonly string KeyName = Environment.GetEnvironmentVariable("KeyName");
+        public static readonly string AccessKey = Environment.GetEnvironmentVariable("AccessKey");
+        public static readonly string BaseAddress = Environment.GetEnvironmentVariable("BaseAddress");
+        public static readonly string QueueName = Environment.GetEnvironmentVariable("QueueName");
         private static readonly SubscriptionHelper _subscriptionHelper = new SubscriptionHelper();
 
         public static async Task CheckAndCreateSubscription(Models.Transfer transfer)
@@ -35,10 +32,8 @@ namespace NCS.DSS.Transfer.ServiceBus
         
         public static async Task SendPostMessageAsync_Target(Models.Transfer transfer, string reqUrl)
         {
-            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(KeyName, AccessKey);
-            var messagingFactory = MessagingFactory.Create(BaseAddress, tokenProvider);
-            var sender = messagingFactory.CreateMessageSender(QueueName);
-
+            var connectionString = GetConnectionString();
+            var queueClient = new QueueClient(connectionString, QueueName);
             var messageModel = new MessageModel()
             {
                 TitleMessage = "New Transfer record {" + transfer.TransferId + "} added at " + DateTime.UtcNow,
@@ -49,21 +44,32 @@ namespace NCS.DSS.Transfer.ServiceBus
                 TouchpointId = transfer.LastModifiedTouchpointId
             };
 
-            var msg = new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel))))
+            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
             {
                 ContentType = "application/json",
                 MessageId = transfer.CustomerId + " " + DateTime.UtcNow
             };
 
             await CheckAndCreateSubscription(transfer);
-            await sender.SendAsync(msg);
+            await queueClient.SendAsync(msg);
+        }
+
+        private static string GetConnectionString()
+        {
+            ServiceBusConnectionStringBuilder sb = new ServiceBusConnectionStringBuilder();
+            sb.Endpoint = BaseAddress;
+            sb.SasKey = AccessKey;
+            sb.EntityPath = "tranfers";
+            sb.SasKeyName = KeyName;
+            var connectionString = sb.GetNamespaceConnectionString();
+            return connectionString;
         }
 
         public static async Task SendPatchMessageAsync(Models.Transfer transfer, Guid customerId, string reqUrl)
         {
-            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(KeyName, AccessKey);
-            var messagingFactory = MessagingFactory.Create(BaseAddress, tokenProvider);
-            var sender = messagingFactory.CreateMessageSender(QueueName);
+            var connectionString = GetConnectionString();
+
+            var queueClient = new QueueClient(connectionString, QueueName);
             var messageModel = new MessageModel
             {
                 TitleMessage = "Transfer record modification for {" + customerId + "} at " + DateTime.UtcNow,
@@ -74,14 +80,14 @@ namespace NCS.DSS.Transfer.ServiceBus
                 TouchpointId = transfer.LastModifiedTouchpointId
             };
 
-            var msg = new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel))))
+            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
             {
                 ContentType = "application/json",
                 MessageId = customerId + " " + DateTime.UtcNow
             };
 
             await CheckAndCreateSubscription(transfer);
-            await sender.SendAsync(msg);
+            await queueClient.SendAsync(msg);
         }
 
     }

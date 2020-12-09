@@ -4,24 +4,39 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http.Description;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Annotations;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.Helpers;
-using NCS.DSS.Transfer.Ioc;
 using NCS.DSS.Transfer.PostTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Validation;
 using Newtonsoft.Json;
 
 namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 {
-    public static class PostTransferHttpTrigger
+    public class PostTransferHttpTrigger
     {
-        [FunctionName("Post")]
-        [ResponseType(typeof(Models.Transfer))]
+        private readonly IResourceHelper _resourceHelper;
+        private readonly IHttpRequestMessageHelper _httpRequestMessageHelper;
+        private readonly IValidate _validate;
+        private readonly IPostTransferHttpTriggerService _transferPostService;
+
+        public PostTransferHttpTrigger(IResourceHelper resourceHelper,
+            IHttpRequestMessageHelper httpRequestMessageHelper,
+            IValidate validate,
+            IPostTransferHttpTriggerService transferPostService)
+        {
+            _resourceHelper = resourceHelper;
+            _httpRequestMessageHelper = httpRequestMessageHelper;
+            _validate = validate;
+            _transferPostService = transferPostService;
+        }
+
+        [FunctionName("POST")]
+        [ProducesResponseType(typeof(Models.Transfer), (int)HttpStatusCode.Created)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Created, Description = "Transfer Created", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Transfer does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
@@ -29,20 +44,16 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Post", Description = "Ability to create a new transfer resource.")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId,
-            [Inject]IResourceHelper resourceHelper,
-            [Inject]IHttpRequestMessageHelper httpRequestMessageHelper,
-            [Inject]IValidate validate,
-            [Inject]IPostTransferHttpTriggerService transferPostService)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequestMessage req, ILogger log, string customerId, string interactionId)
         {
-            var touchpointId = httpRequestMessageHelper.GetTouchpointId(req);
+            var touchpointId = _httpRequestMessageHelper.GetTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
                 log.LogInformation("Unable to locate 'TouchpointId' in request header.");
                 return HttpResponseMessageHelper.BadRequest();
             }
 
-            var ApimURL = httpRequestMessageHelper.GetApimURL(req);
+            var ApimURL = _httpRequestMessageHelper.GetApimURL(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
                 log.LogInformation("Unable to locate 'apimurl' in request header");
@@ -61,7 +72,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 
             try
             {
-                transferRequest = await httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(req);
+                transferRequest = await _httpRequestMessageHelper.GetTransferFromRequest<Models.Transfer>(req);
             }
             catch (JsonException ex)
             {
@@ -73,30 +84,30 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 
             transferRequest.SetIds(customerGuid, interactionGuid, touchpointId);
 
-            var errors = validate.ValidateResource(transferRequest, true);
+            var errors = _validate.ValidateResource(transferRequest, true);
 
             if (errors != null && errors.Any())
                 return HttpResponseMessageHelper.UnprocessableEntity(errors);
 
-            var doesCustomerExist = await resourceHelper.DoesCustomerExist(customerGuid);
+            var doesCustomerExist = await _resourceHelper.DoesCustomerExist(customerGuid);
 
             if (!doesCustomerExist)
                 return HttpResponseMessageHelper.NoContent(customerGuid);
 
-            var isCustomerReadOnly = await resourceHelper.IsCustomerReadOnly(customerGuid);
+            var isCustomerReadOnly = await _resourceHelper.IsCustomerReadOnly(customerGuid);
 
             if (isCustomerReadOnly)
                 return HttpResponseMessageHelper.Forbidden(customerGuid);
 
-            var doesInteractionExist = resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(interactionGuid, customerGuid);
+            var doesInteractionExist = _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(interactionGuid, customerGuid);
 
             if (!doesInteractionExist)
                 return HttpResponseMessageHelper.NoContent(interactionGuid);
 
-            var transfer = await transferPostService.CreateAsync(transferRequest);
+            var transfer = await _transferPostService.CreateAsync(transferRequest);
 
             if (transfer != null)
-                await transferPostService.SendToServiceBusQueueAsync(transfer, ApimURL);
+                await _transferPostService.SendToServiceBusQueueAsync(transfer, ApimURL);
 
             return transfer == null ?
                 HttpResponseMessageHelper.BadRequest(customerGuid) :
