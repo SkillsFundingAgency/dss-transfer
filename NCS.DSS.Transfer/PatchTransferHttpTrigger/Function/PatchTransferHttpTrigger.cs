@@ -1,11 +1,11 @@
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
+using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Transfer.Annotations;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.PatchTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Validation;

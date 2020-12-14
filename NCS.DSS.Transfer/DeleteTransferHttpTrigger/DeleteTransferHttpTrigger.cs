@@ -5,7 +5,6 @@ using System.Net.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
-using NCS.DSS.Transfer.Annotations;
 using Newtonsoft.Json;
 
 namespace NCS.DSS.Transfer.DeleteTransferHttpTrigger

@@ -6,13 +6,13 @@ using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Transfer.Annotations;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service;
 using Microsoft.AspNetCore.Mvc;
 using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.JSON.Standard;
+using DFC.Swagger.Standard.Annotations;
 
 namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
 {
