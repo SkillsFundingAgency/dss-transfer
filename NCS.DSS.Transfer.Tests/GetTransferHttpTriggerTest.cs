@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DFC.HTTP.Standard;
+using DFC.JSON.Standard;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
-using NCS.DSS.Transfer.Helpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -20,28 +23,25 @@ namespace NCS.DSS.Transfer.Tests
         private const string InValidId = "1111111-2222-3333-4444-555555555555";
 
         private Mock<ILogger> _log;
-        private HttpRequestMessage _request;
+        private DefaultHttpRequest _request;
         private Mock<IResourceHelper> _resourceHelper;
-        private Mock<IHttpRequestMessageHelper> _httpRequestMessageHelper;
+        private Mock<IHttpRequestHelper> _httpRequestMessageHelper;
         private Mock<IGetTransferHttpTriggerService> _getTransferHttpTriggerService;
         private GetTransferHttpTrigger.Function.GetTransferHttpTrigger _function;
+        private IHttpResponseMessageHelper _responseHelper;
+        private IJsonHelper _jsonHelper;
 
         [SetUp]
         public void Setup()
         {
-            _request = new HttpRequestMessage()
-            {
-                Content = new StringContent(string.Empty),
-                RequestUri =
-                        new Uri($"http://localhost:7071/api/Customers/7E467BDB-213F-407A-B86A-1954053D3C24/" +
-                                $"Interactions/aa57e39e-4469-4c79-a9e9-9cb4ef410382/" +
-                                $"Transfer")
-            };
+            _request = new DefaultHttpRequest(new DefaultHttpContext());
             _log = new Mock<ILogger>();
             _resourceHelper = new Mock<IResourceHelper>();
-            _httpRequestMessageHelper = new Mock<IHttpRequestMessageHelper>();
+            _httpRequestMessageHelper = new Mock<IHttpRequestHelper>();
             _getTransferHttpTriggerService = new Mock<IGetTransferHttpTriggerService>();
-            _function = new GetTransferHttpTrigger.Function.GetTransferHttpTrigger(_resourceHelper.Object, _httpRequestMessageHelper.Object, _getTransferHttpTriggerService.Object);
+            _jsonHelper = new JsonHelper();
+            _responseHelper = new HttpResponseMessageHelper();
+            _function = new GetTransferHttpTrigger.Function.GetTransferHttpTrigger(_resourceHelper.Object, _httpRequestMessageHelper.Object, _getTransferHttpTriggerService.Object, _responseHelper, _jsonHelper);
 
         }
 
@@ -49,7 +49,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferdHttpTrigger_ReturnsStatusCodeBadRequest_WhenTouchpointIdIsNotProvided()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetTouchpointId(_request)).Returns((string)null);
+            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(_request)).Returns((string)null);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -63,7 +63,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenCustomerIdIsInvalid()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(_request)).Returns("0000000001");
             
             // Act
             var result = await RunFunction(InValidId, ValidInteractionId);
@@ -77,7 +77,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenInteractionIdIsInvalid()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
 
             // Act
             var result = await RunFunction(ValidCustomerId, InValidId);
@@ -91,7 +91,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenCustomerDoesNotExist()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
@@ -106,7 +106,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenInteractionDoesNotExist()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
 
@@ -122,7 +122,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeNoContent_WhenTransferDoesNotExist()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
             _getTransferHttpTriggerService.Setup(x=>x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(null));
@@ -139,10 +139,10 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeOk_WhenTransferExists()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x => x.GetTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
-            var listOfTransferes = new List<Models.Transfer>();
+            var listOfTransferes = new List<Models.Transfer>() { new Models.Transfer() { TransferId = Guid.NewGuid(), CustomerId=Guid.NewGuid() } };
             _getTransferHttpTriggerService.Setup(x=>x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(listOfTransferes));
 
             // Act

@@ -1,11 +1,12 @@
-﻿using DFC.Swagger.Standard;
+﻿using DFC.HTTP.Standard;
+using DFC.JSON.Standard;
+using DFC.Swagger.Standard;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using NCS.DSS.Transfer;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service;
 using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
-using NCS.DSS.Transfer.Helpers;
 using NCS.DSS.Transfer.PatchTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.PostTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Validation;
@@ -24,8 +25,10 @@ namespace NCS.DSS.Transfer
             builder.Services.AddTransient<IPatchTransferHttpTriggerService, PatchTransferHttpTriggerService>();
             builder.Services.AddTransient<IResourceHelper, ResourceHelper>();
             builder.Services.AddTransient<IValidate, Validate>();
-            builder.Services.AddTransient<IHttpRequestMessageHelper, HttpRequestMessageHelper>();
+            builder.Services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
+            builder.Services.AddTransient<IJsonHelper, JsonHelper>();
             builder.Services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+            builder.Services.AddTransient<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
         }
     }
 }
