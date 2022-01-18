@@ -1,6 +1,6 @@
-﻿using System;
+﻿using DFC.Swagger.Standard.Annotations;
+using System;
 using System.ComponentModel.DataAnnotations;
-using NCS.DSS.Transfer.Annotations;
 
 namespace NCS.DSS.Transfer.Models
 {
