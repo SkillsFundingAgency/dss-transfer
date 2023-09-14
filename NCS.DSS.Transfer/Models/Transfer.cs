@@ -26,12 +26,14 @@ namespace NCS.DSS.Transfer.Models
 
         [Required]
         [StringLength(10, MinimumLength = 10)]
+        [RegularExpression(@"^[0-9]+$")]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "0000000001")]
         public string TargetTouchpointId { get; set; }
 
         [Required]
         [StringLength(2000)]
+        [RegularExpression(@"^[a-zA-Z]+([a-zA-Z0-9\s\.\-'\,\/]*)*")]
         [Display(Description = "Context of the transfer.")]
         [Example(Description = "this is some text")]
         public string Context { get; set; }
