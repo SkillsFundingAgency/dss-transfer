@@ -32,7 +32,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             IHttpRequestHelper httpRequestMessageHelper,
             IValidate validate,
             IPostTransferHttpTriggerService transferPostService,
-            IHttpResponseMessageHelper httpResponseMessageHelper, 
+            IHttpResponseMessageHelper httpResponseMessageHelper,
             IJsonHelper jsonHelper)
         {
             _resourceHelper = resourceHelper;
@@ -52,7 +52,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Post", Description = "Ability to create a new transfer resource.")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequest req, ILogger log, string customerId, string interactionId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")] HttpRequest req, ILogger log, string customerId, string interactionId)
         {
             var touchpointId = _httpRequestMessageHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -71,10 +71,14 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             log.LogInformation("Post Transfer C# HTTP trigger function processed a request. By Touchpoint. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
+            {
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
+            }
 
             if (!Guid.TryParse(interactionId, out var interactionGuid))
+            {
                 return _httpResponseMessageHelper.BadRequest(interactionGuid);
+            }
 
             Models.Transfer transferRequest;
 
@@ -88,34 +92,46 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             }
 
             if (transferRequest == null)
+            {
                 return _httpResponseMessageHelper.UnprocessableEntity(req);
+            }
 
             transferRequest.SetIds(customerGuid, interactionGuid, touchpointId);
 
             var errors = _validate.ValidateResource(transferRequest, true);
 
             if (errors != null && errors.Any())
+            {
                 return _httpResponseMessageHelper.UnprocessableEntity(errors);
+            }
 
             var doesCustomerExist = await _resourceHelper.DoesCustomerExist(customerGuid);
 
             if (!doesCustomerExist)
+            {
                 return _httpResponseMessageHelper.NoContent(customerGuid);
+            }
 
             var isCustomerReadOnly = await _resourceHelper.IsCustomerReadOnly(customerGuid);
 
             if (isCustomerReadOnly)
+            {
                 return _httpResponseMessageHelper.Forbidden(customerGuid);
+            }
 
             var doesInteractionExist = _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(interactionGuid, customerGuid);
 
             if (!doesInteractionExist)
+            {
                 return _httpResponseMessageHelper.NoContent(interactionGuid);
+            }
 
             var transfer = await _transferPostService.CreateAsync(transferRequest);
 
             if (transfer != null)
+            {
                 await _transferPostService.SendToServiceBusQueueAsync(transfer, ApimURL);
+            }
 
             return transfer == null ?
                 _httpResponseMessageHelper.BadRequest(customerGuid) :

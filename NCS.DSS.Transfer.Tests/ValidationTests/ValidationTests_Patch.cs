@@ -21,11 +21,12 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
         }
 
         [Test]
-        public void ValidateTests_ReturnValidationResult_WhenOriginatingTouchpointIdIsInvalid()
+        public void ValidateTests_ReturnValidationResult_WhenLastModifiedTouchpointIdIsInvalid()
         {
             var transfer = new Models.TransferPatch
             {
-                TargetTouchpointId = "000000000A", 
+                TargetTouchpointId = "0000000001",
+                LastModifiedTouchpointId = "000000000A",
                 Context = "Some context data"
             };
 
@@ -37,11 +38,12 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
         }
 
         [Test]
-        public void ValidateTests_ReturnValidationResult_WhenOriginatingTouchpointIdIsValid()
+        public void ValidateTests_ReturnValidationResult_WhenLastModifiedTouchpointIdIsValid()
         {
             var transfer = new Models.TransferPatch
             {
                 TargetTouchpointId = "0000000001",
+                LastModifiedTouchpointId = "0000000001",
                 Context = "Some context data"
             };
 

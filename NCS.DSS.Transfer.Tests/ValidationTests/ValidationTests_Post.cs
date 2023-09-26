@@ -25,7 +25,7 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
         {
             var transfer = new Models.Transfer
             {
-                TargetTouchpointId = "000000000A", 
+                TargetTouchpointId = "000000000A",
                 Context = "Some context data"
             };
 
@@ -74,6 +74,40 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
             var transfer = new Models.Transfer
             {
                 TargetTouchpointId = "0000000001",
+                Context = "Some context data"
+            };
+
+            var result = _validate.ValidateResource(transfer, true);
+
+            Assert.IsInstanceOf<List<ValidationResult>>(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [Test]
+        public void ValidateTests_ReturnValidationResult_WhenLastModifiedTouchpointIdIsInvalid()
+        {
+            var transfer = new Models.Transfer
+            {
+                TargetTouchpointId = "0000000001",
+                LastModifiedTouchpointId = "000000000A",
+                Context = "Some context data"
+            };
+
+            var result = _validate.ValidateResource(transfer, true);
+
+            Assert.IsInstanceOf<List<ValidationResult>>(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [Test]
+        public void ValidateTests_ReturnValidationResult_WhenLastModifiedTouchpointIdIsValid()
+        {
+            var transfer = new Models.Transfer
+            {
+                TargetTouchpointId = "0000000001",
+                LastModifiedTouchpointId = "0000000001",
                 Context = "Some context data"
             };
 
