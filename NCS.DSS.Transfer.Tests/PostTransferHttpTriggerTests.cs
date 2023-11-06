@@ -225,6 +225,26 @@ namespace NCS.DSS.Transfer.Tests
             Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         }
 
+
+                [Test]
+        public async Task PostTransferHttpTrigger_ReturnsStatusUnprocessableEntity_WhenTouchpointIdIsIsInvalid_TestForOriginatingTouchpointId()
+        {
+            // Arrange
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("000000000A");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(_transfer));
+
+            // Act
+            var result = await RunFunction(ValidCustomerId, ValidInteractionId);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+        }
+
         private async Task<HttpResponseMessage> RunFunction(string customerId, string interactionId)
         {
             return await _function.Run(
