@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using NCS.DSS.Transfer.Cosmos.Provider;
 using NCS.DSS.Transfer.Models;
 using NCS.DSS.Transfer.ServiceBus;

@@ -1,10 +1,7 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.Transfer.ServiceBus
 {

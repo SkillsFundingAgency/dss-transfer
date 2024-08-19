@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
+﻿namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
 {
     public interface IPostTransferHttpTriggerService
     {

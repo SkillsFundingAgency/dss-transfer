@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using DFC.Swagger.Standard.Annotations;
 
 namespace NCS.DSS.Transfer.Models

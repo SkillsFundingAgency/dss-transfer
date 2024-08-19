@@ -1,36 +1,22 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using Newtonsoft.Json;
-
 namespace NCS.DSS.Transfer.DeleteTransferHttpTrigger
 {
-    public static class DeleteTransferHttpTrigger
+    /*public static class DeleteTransferHttpTrigger
     {
-        [Disable]
-        [FunctionName("Delete")]
+        [Function("Delete")]
         [Display(Name = "Delete", Description = "Ability to delete an transfer record.")]
-        public static HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequestMessage req, TraceWriter log, string customerId, string interactionId, string transferId)
+        public static IActionResult Run([Microsoft.Azure.Functions.Worker.HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequest req, ILogger log, string customerId, string interactionId, string transferId)
         {
-            log.Info("Delete Transfer C# HTTP trigger function processed a request.");
+            log.LogInformation("Delete Transfer C# HTTP trigger function processed a request.");
 
             if (!Guid.TryParse(transferId, out var transferGuid))
             {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(transferId),
-                        System.Text.Encoding.UTF8, "application/json")
-                };
+                return new BadRequestObjectResult(transferId);
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
+            return new JsonResult("Deleted Transfer record with Id of : " + transferGuid, new JsonSerializerSettings())
             {
-                Content = new StringContent("Deleted Transfer record with Id of : " + transferGuid)
+                StatusCode = (int)HttpStatusCode.OK
             };
         }
-    }
+    }*/
 }

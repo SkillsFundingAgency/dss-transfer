@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using NCS.DSS.Transfer.Models;
 
 namespace NCS.DSS.Transfer.Validation

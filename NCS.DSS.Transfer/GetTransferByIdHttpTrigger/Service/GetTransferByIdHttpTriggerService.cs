@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NCS.DSS.Transfer.Cosmos.Provider;
+﻿using NCS.DSS.Transfer.Cosmos.Provider;
 
 namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service
 {
