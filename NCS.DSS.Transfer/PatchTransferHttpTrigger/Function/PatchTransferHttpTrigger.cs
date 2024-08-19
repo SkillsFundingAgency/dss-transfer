@@ -1,44 +1,45 @@
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.PatchTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Validation;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 {
     public class PatchTransferHttpTrigger
     {
-        private readonly IResourceHelper _resourceHelper;
-        private readonly IHttpRequestHelper _httpRequestMessageHelper;
-        private readonly IValidate _validate;
         private readonly IPatchTransferHttpTriggerService _transferPatchService;
-        private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
-        private readonly IJsonHelper _jsonHelper;
+        private readonly IHttpRequestHelper _httpRequestMessageHelper;
+        private readonly IResourceHelper _resourceHelper;
+        private readonly IValidate _validate;
+        private readonly IDynamicHelper _dynamicHelper;
+        private readonly ILogger _logger;
+        private static readonly string[] PropertyToExclude = { "TargetSite" };
 
-        public PatchTransferHttpTrigger(IResourceHelper resourceHelper, IHttpRequestHelper httpRequestMessageHelper, IValidate validate, IPatchTransferHttpTriggerService transferPatchService, IHttpResponseMessageHelper httpResponseMessageHelper, IJsonHelper jsonHelper)
+        public PatchTransferHttpTrigger(
+            IPatchTransferHttpTriggerService transferPatchService,
+            IHttpRequestHelper httpRequestMessageHelper, 
+            IResourceHelper resourceHelper, 
+            IValidate validate, 
+            IDynamicHelper dynamicHelper,
+            ILogger<PatchTransferHttpTrigger> logger)
         {
-            _resourceHelper = resourceHelper;
-            _httpRequestMessageHelper = httpRequestMessageHelper;
-            _validate = validate;
             _transferPatchService = transferPatchService;
-            _httpResponseMessageHelper = httpResponseMessageHelper;
-            _jsonHelper = jsonHelper;
+            _httpRequestMessageHelper = httpRequestMessageHelper;
+            _resourceHelper = resourceHelper;
+            _validate = validate;
+            _dynamicHelper = dynamicHelper;
+            _logger = logger;
         }
 
-        [FunctionName("Patch")]
+        [Function("Patch")]
         [ProducesResponseType(typeof(Models.Transfer), (int)HttpStatusCode.OK)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfer Updated", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Transfer does not exist", ShowSchema = false)]
@@ -47,32 +48,32 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Patch", Description = "Ability to modify/update an transfer record.")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequest req, ILogger log, string customerId, string interactionId, string transferId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequest req, string customerId, string interactionId, string transferId)
         {
             var touchpointId = _httpRequestMessageHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                log.LogInformation("Unable to locate 'TouchpointId' in request header.");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogInformation("Unable to locate 'TouchpointId' in request header.");
+                return new BadRequestResult();
             }
 
             var ApimURL = _httpRequestMessageHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                log.LogInformation("Unable to locate 'apimurl' in request header");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogInformation("Unable to locate 'apimurl' in request header");
+                return new BadRequestResult();
             }
 
-            log.LogInformation("Patch Transfer C# HTTP trigger function processed a request. By Touchpoint. " + touchpointId); 
+            _logger.LogInformation("Patch Transfer C# HTTP trigger function processed a request. By Touchpoint. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                return new BadRequestObjectResult(customerGuid.ToString());
 
             if (!Guid.TryParse(interactionId, out var interactionGuid))
-                return _httpResponseMessageHelper.BadRequest(interactionGuid);
+                return new BadRequestObjectResult(interactionGuid.ToString());
 
             if (!Guid.TryParse(transferId, out var transferGuid))
-                return _httpResponseMessageHelper.BadRequest(transferGuid);
+                return new BadRequestObjectResult(transferGuid.ToString());
 
             Models.TransferPatch transferPatchRequest;
 
@@ -82,47 +83,53 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
             }
             catch (JsonException ex)
             {
-                return _httpResponseMessageHelper.UnprocessableEntity(ex);
+                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
 
             if (transferPatchRequest == null)
-                return _httpResponseMessageHelper.UnprocessableEntity();
+                return new UnprocessableEntityResult();
 
             transferPatchRequest.LastModifiedTouchpointId = touchpointId;
 
             var errors = _validate.ValidateResource(transferPatchRequest, false);
 
             if (errors != null && errors.Any())
-                return _httpResponseMessageHelper.UnprocessableEntity(errors);
+                return new UnprocessableEntityObjectResult(errors);
 
             var doesCustomerExist = await _resourceHelper.DoesCustomerExist(customerGuid);
 
             if (!doesCustomerExist)
-                return _httpResponseMessageHelper.NoContent(customerGuid);
+                return new NoContentResult();
 
             var isCustomerReadOnly = await _resourceHelper.IsCustomerReadOnly(customerGuid);
 
             if (isCustomerReadOnly)
-                return _httpResponseMessageHelper.Forbidden(customerGuid);
+                return new ObjectResult(customerGuid.ToString())
+                {
+                    StatusCode = (int)HttpStatusCode.Forbidden
+                };
 
             var doesInteractionExist = _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(interactionGuid, customerGuid);
 
             if (!doesInteractionExist)
-                return _httpResponseMessageHelper.NoContent(interactionGuid);
+                return new NoContentResult();
 
             var transfer = await _transferPatchService.GetTransferForCustomerAsync(customerGuid, transferGuid);
 
             if (transfer == null)
-                return _httpResponseMessageHelper.NoContent(transferGuid);
+                return new NoContentResult();
 
             var updatedTransfer = await _transferPatchService.UpdateAsync(transfer, transferPatchRequest);
 
             if (updatedTransfer != null)
                 await _transferPatchService.SendToServiceBusQueueAsync(transfer, customerGuid, ApimURL);
 
-            return updatedTransfer == null ?
-                _httpResponseMessageHelper.BadRequest(transferGuid) :
-                _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedTransfer, "id", "TransferId"));
+            return updatedTransfer == null
+                ? new BadRequestObjectResult(transferGuid.ToString())
+                : new JsonResult(updatedTransfer, new JsonSerializerSettings())
+                {
+                    StatusCode = (int)HttpStatusCode.OK
+                };
         }
     }
 }

@@ -1,7 +1,7 @@
 # DSS Transfer
 
 > [!NOTE]  
-> The latest version of this API is `v1`
+> The latest version of this API is `v3`
 
 [![Build Status](https://sfa-gov-uk.visualstudio.com/CDS%202.0/_apis/build/status/Yaml/dss-transfers?repoName=SkillsFundingAgency%2Fdss-transfer&branchName=master)](https://sfa-gov-uk.visualstudio.com/CDS%202.0/_build/latest?definitionId=1468&repoName=SkillsFundingAgency%2Fdss-transfer&branchName=master)
 

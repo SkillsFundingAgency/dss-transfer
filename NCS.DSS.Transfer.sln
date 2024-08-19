@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.Transfer", "NCS.DSS.Transfer\NCS.DSS.Transfer.csproj", "{B54F1503-A441-4AFD-B329-985EB5A5AB94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCS.DSS.Transfer.Tests", "NCS.DSS.Transfer.Tests\NCS.DSS.Transfer.Tests.csproj", "{2946B627-CA93-4A74-81A3-087DC3E8EFAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.Transfer.Tests", "NCS.DSS.Transfer.Tests\NCS.DSS.Transfer.Tests.csproj", "{2946B627-CA93-4A74-81A3-087DC3E8EFAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
