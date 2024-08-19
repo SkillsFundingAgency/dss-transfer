@@ -7,9 +7,10 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.PatchTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Validation;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Text.Json;
+using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 {
@@ -126,7 +127,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 
             return updatedTransfer == null
                 ? new BadRequestObjectResult(transferGuid.ToString())
-                : new JsonResult(updatedTransfer, new JsonSerializerSettings())
+                : new JsonResult(updatedTransfer, new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.OK
                 };

@@ -6,9 +6,9 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Text.Json;
 
 namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
 {
@@ -73,7 +73,7 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
 
             return transfer == null
                 ? new NoContentResult()
-                : new JsonResult(transfer, new JsonSerializerSettings())
+                : new JsonResult(transfer, new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.OK
                 };

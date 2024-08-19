@@ -6,9 +6,9 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Text.Json;
 
 namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
 {
@@ -74,13 +74,13 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
 
             if (transfers.Count == 1)
             {
-                return new JsonResult(transfers[0], new JsonSerializerSettings())
+                return new JsonResult(transfers[0], new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.OK
                 };
             }
 
-            return new JsonResult(transfers, new JsonSerializerSettings())
+            return new JsonResult(transfers, new JsonSerializerOptions())
             {
                 StatusCode = (int)HttpStatusCode.OK
             };
