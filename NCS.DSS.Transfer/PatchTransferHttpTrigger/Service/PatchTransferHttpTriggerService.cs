@@ -1,7 +1,7 @@
-﻿using System.Net;
-using NCS.DSS.Transfer.Cosmos.Provider;
+﻿using NCS.DSS.Transfer.Cosmos.Provider;
 using NCS.DSS.Transfer.Models;
 using NCS.DSS.Transfer.ServiceBus;
+using System.Net;
 
 namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Service
 {

@@ -8,7 +8,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 {
     public class DocumentDBProvider : IDocumentDBProvider
     {
-      
+
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
         {
             var documentUri = DocumentDBHelper.CreateCustomerDocumentUri(customerId);

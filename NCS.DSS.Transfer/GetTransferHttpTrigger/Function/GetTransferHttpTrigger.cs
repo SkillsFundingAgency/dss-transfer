@@ -20,8 +20,8 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
         private readonly ILogger _logger;
 
         public GetTransferHttpTrigger(
-            IGetTransferHttpTriggerService transferGetService, 
-            IHttpRequestHelper httpRequestMessageHelper, 
+            IGetTransferHttpTriggerService transferGetService,
+            IHttpRequestHelper httpRequestMessageHelper,
             IResourceHelper resourceHelper,
             ILogger<GetTransferHttpTrigger> logger)
         {
@@ -40,7 +40,7 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "Get", Description = "Ability to return all transfer records for a given customer.")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")]HttpRequest req, string customerId, string interactionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/")] HttpRequest req, string customerId, string interactionId)
         {
             var touchpointId = _httpRequestMessageHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))

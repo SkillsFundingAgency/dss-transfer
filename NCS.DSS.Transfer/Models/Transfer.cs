@@ -91,28 +91,28 @@ namespace NCS.DSS.Transfer.Models
             if (transferPatch == null)
                 return;
 
-            if(!string.IsNullOrEmpty(transferPatch.TargetTouchpointId))
+            if (!string.IsNullOrEmpty(transferPatch.TargetTouchpointId))
                 TargetTouchpointId = transferPatch.TargetTouchpointId;
 
-            if(!string.IsNullOrEmpty(transferPatch.Context))
+            if (!string.IsNullOrEmpty(transferPatch.Context))
                 Context = transferPatch.Context;
 
-            if(transferPatch.DateandTimeOfTransfer.HasValue)
+            if (transferPatch.DateandTimeOfTransfer.HasValue)
                 DateandTimeOfTransfer = transferPatch.DateandTimeOfTransfer;
 
-            if(transferPatch.DateandTimeofTransferAccepted.HasValue)
+            if (transferPatch.DateandTimeofTransferAccepted.HasValue)
                 DateandTimeofTransferAccepted = transferPatch.DateandTimeofTransferAccepted;
 
             if (transferPatch.RequestedCallbackTime.HasValue)
                 RequestedCallbackTime = transferPatch.RequestedCallbackTime;
 
-            if(transferPatch.ActualCallbackTime.HasValue)
+            if (transferPatch.ActualCallbackTime.HasValue)
                 ActualCallbackTime = transferPatch.ActualCallbackTime;
 
-            if(transferPatch.LastModifiedDate.HasValue)
+            if (transferPatch.LastModifiedDate.HasValue)
                 LastModifiedDate = transferPatch.LastModifiedDate;
 
-            if(!string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
+            if (!string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
                 LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
         }
 

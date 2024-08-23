@@ -49,9 +49,9 @@ namespace NCS.DSS.Transfer.Tests
 
             _function = new PostTransferHttpTrigger.Function.PostTransferHttpTrigger(
                 _postTransferHttpTriggerService.Object,
-                _httpRequestMessageHelper.Object, 
-                _resourceHelper.Object, 
-                _validate, 
+                _httpRequestMessageHelper.Object,
+                _resourceHelper.Object,
+                _validate,
                 _dynamicHelper.Object,
                 _log.Object);
         }
@@ -60,7 +60,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task PostTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenTouchpointIdIsNotProvided()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(_request)).Returns((string)null);
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns((string)null);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -73,8 +73,8 @@ namespace NCS.DSS.Transfer.Tests
         public async Task PostTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenCustomerIdIsInvalid()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(_request)).Returns("0000000001");
-            _httpRequestMessageHelper.Setup(x=>x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
+            _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
 
             // Act
             var result = await RunFunction(InValidId, ValidInteractionId);
@@ -103,17 +103,17 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
 
             var val = new Mock<IValidate>();
             var validationResults = new List<ValidationResult> { new ValidationResult("interaction Id is Required") };
-            val.Setup(x=>x.ValidateResource(It.IsAny<Models.Transfer>(), true)).Returns(validationResults);
+            val.Setup(x => x.ValidateResource(It.IsAny<Models.Transfer>(), true)).Returns(validationResults);
             _function = new PostTransferHttpTrigger.Function.PostTransferHttpTrigger(
-                _postTransferHttpTriggerService.Object, 
-                _httpRequestMessageHelper.Object, 
-                _resourceHelper.Object, 
-                val.Object, 
-                _dynamicHelper.Object, 
+                _postTransferHttpTriggerService.Object,
+                _httpRequestMessageHelper.Object,
+                _resourceHelper.Object,
+                val.Object,
+                _dynamicHelper.Object,
                 _log.Object);
 
             // Act
@@ -129,7 +129,7 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=> x.GetResourceFromRequest<Models.Transfer>(_request)).Throws(new JsonException());
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Throws(new JsonException());
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -144,8 +144,8 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -160,9 +160,9 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -177,10 +177,10 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
-            _postTransferHttpTriggerService.Setup(x=>x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(null));
+            _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(null));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -195,10 +195,10 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
-            _postTransferHttpTriggerService.Setup(x=>x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(null));
+            _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(null));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -213,10 +213,10 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
-            _httpRequestMessageHelper.Setup(x=>x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
-            _postTransferHttpTriggerService.Setup(x=>x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(_transfer));
+            _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(_transfer));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);

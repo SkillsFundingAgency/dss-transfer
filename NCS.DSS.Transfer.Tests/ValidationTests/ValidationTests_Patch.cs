@@ -21,7 +21,7 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
         {
             var transfer = new Models.TransferPatch
             {
-                TargetTouchpointId = "000000000A", 
+                TargetTouchpointId = "000000000A",
                 Context = "Some context data"
             };
 

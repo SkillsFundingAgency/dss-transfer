@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using NCS.DSS.Transfer.Models;
+﻿using NCS.DSS.Transfer.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.Transfer.Validation
 {

@@ -21,7 +21,7 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
 
         public GetTransferByIdHttpTrigger(
             IGetTransferByIdHttpTriggerService transferByIdService,
-            IHttpRequestHelper httpRequestMessageHelper, 
+            IHttpRequestHelper httpRequestMessageHelper,
             IResourceHelper resourceHelper,
             ILogger<GetTransferByIdHttpTrigger> logger)
         {

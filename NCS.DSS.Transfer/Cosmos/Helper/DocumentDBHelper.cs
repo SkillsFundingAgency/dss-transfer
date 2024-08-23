@@ -31,10 +31,10 @@ namespace NCS.DSS.Transfer.Cosmos.Helper
 
             return _documentCollectionUri;
         }
-        
+
         public static Uri CreateDocumentUri(Guid transferId)
         {
-           return UriFactory.CreateDocumentUri(DatabaseId, CollectionId, transferId.ToString());
+            return UriFactory.CreateDocumentUri(DatabaseId, CollectionId, transferId.ToString());
         }
 
         #region CustomerDB

@@ -26,9 +26,9 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 
         public PatchTransferHttpTrigger(
             IPatchTransferHttpTriggerService transferPatchService,
-            IHttpRequestHelper httpRequestMessageHelper, 
-            IResourceHelper resourceHelper, 
-            IValidate validate, 
+            IHttpRequestHelper httpRequestMessageHelper,
+            IResourceHelper resourceHelper,
+            IValidate validate,
             IDynamicHelper dynamicHelper,
             ILogger<PatchTransferHttpTrigger> logger)
         {
@@ -49,7 +49,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = 422, Description = "Transfer validation error(s)", ShowSchema = false)]
         [Display(Name = "Patch", Description = "Ability to modify/update an transfer record.")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")]HttpRequest req, string customerId, string interactionId, string transferId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")] HttpRequest req, string customerId, string interactionId, string transferId)
         {
             var touchpointId = _httpRequestMessageHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))

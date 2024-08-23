@@ -20,13 +20,13 @@ namespace NCS.DSS.Transfer.ServiceBus
             var doesSubscriptionExist = subscriptions != null && subscriptions.Any(x =>
                                             x.CustomerId == transfer.CustomerId &&
                                             x.TouchPointId == transfer.TargetTouchpointId);
-            
+
             if (doesSubscriptionExist == false)
             {
                 await _subscriptionHelper.CreateSubscriptionAsync(transfer);
             }
         }
-        
+
         public static async Task SendPostMessageAsync_Target(Models.Transfer transfer, string reqUrl)
         {
             var connectionString = GetConnectionString();

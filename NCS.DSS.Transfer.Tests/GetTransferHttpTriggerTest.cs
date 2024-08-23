@@ -39,8 +39,8 @@ namespace NCS.DSS.Transfer.Tests
             _log = new Mock<ILogger<GetTransferHttpTrigger.Function.GetTransferHttpTrigger>>();
 
             _function = new GetTransferHttpTrigger.Function.GetTransferHttpTrigger(
-                _getTransferHttpTriggerService.Object, 
-                _httpRequestMessageHelper.Object, 
+                _getTransferHttpTriggerService.Object,
+                _httpRequestMessageHelper.Object,
                 _resourceHelper.Object,
                 _log.Object);
 
@@ -50,7 +50,7 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferdHttpTrigger_ReturnsStatusCodeBadRequest_WhenTouchpointIdIsNotProvided()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(_request)).Returns((string)null);
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns((string)null);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -63,8 +63,8 @@ namespace NCS.DSS.Transfer.Tests
         public async Task GetTransferHttpTrigger_ReturnsStatusCodeBadRequest_WhenCustomerIdIsInvalid()
         {
             // Arrange
-            _httpRequestMessageHelper.Setup(x=>x.GetDssTouchpointId(_request)).Returns("0000000001");
-            
+            _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
+
             // Act
             var result = await RunFunction(InValidId, ValidInteractionId);
 
@@ -104,8 +104,8 @@ namespace NCS.DSS.Transfer.Tests
         {
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -119,9 +119,9 @@ namespace NCS.DSS.Transfer.Tests
         {
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
-            _getTransferHttpTriggerService.Setup(x=>x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(null));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
+            _getTransferHttpTriggerService.Setup(x => x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(null));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -135,10 +135,10 @@ namespace NCS.DSS.Transfer.Tests
         {
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x=>x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
-            var listOfTransferes = new List<Models.Transfer>() { new Models.Transfer() { TransferId = Guid.NewGuid(), CustomerId=Guid.NewGuid() } };
-            _getTransferHttpTriggerService.Setup(x=>x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(listOfTransferes));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            var listOfTransferes = new List<Models.Transfer>() { new Models.Transfer() { TransferId = Guid.NewGuid(), CustomerId = Guid.NewGuid() } };
+            _getTransferHttpTriggerService.Setup(x => x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(listOfTransferes));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
