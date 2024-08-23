@@ -13,7 +13,7 @@ namespace NCS.DSS.Transfer.APIDefinition
         public const string APIDefRoute = APITitle + "/" + APIDefinitionName;
         public const string APIDescription = "Basic details of a National Careers Service " + APITitle + " Resource";
         private readonly ISwaggerDocumentGenerator swaggerDocumentGenerator;
-        private string ApiVersion = "3.0.0";
+        private string ApiVersion = "2.0.0";
 
         public ApiDefinition(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
