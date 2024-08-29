@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Service
+﻿namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Service
 {
     public interface IPatchTransferHttpTriggerService
     {

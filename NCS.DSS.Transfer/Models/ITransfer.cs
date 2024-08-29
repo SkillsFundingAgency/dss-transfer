@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NCS.DSS.Transfer.Models
+﻿namespace NCS.DSS.Transfer.Models
 {
     public interface ITransfer
     {
