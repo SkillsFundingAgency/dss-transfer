@@ -1,39 +1,37 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using System.Net.Http;
-using System.Net;
-using System.Threading.Tasks;
+using DFC.HTTP.Standard;
+using DFC.Swagger.Standard.Annotations;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service;
-using Microsoft.AspNetCore.Mvc;
-using DFC.HTTP.Standard;
-using Microsoft.AspNetCore.Http;
-using DFC.JSON.Standard;
-using DFC.Swagger.Standard.Annotations;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Text.Json;
 
 namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
 {
     public class GetTransferByIdHttpTrigger
     {
-        private readonly IResourceHelper _resourceHelper;
-        private readonly IHttpRequestHelper _httpRequestMessageHelper;
         private readonly IGetTransferByIdHttpTriggerService _transferByIdService;
-        private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
-        private readonly IJsonHelper _jsonHelper;
+        private readonly IHttpRequestHelper _httpRequestMessageHelper;
+        private readonly IResourceHelper _resourceHelper;
+        private readonly ILogger _logger;
 
-        public GetTransferByIdHttpTrigger(IResourceHelper resourceHelper, IHttpRequestHelper httpRequestMessageHelper, IGetTransferByIdHttpTriggerService transferByIdService, IHttpResponseMessageHelper httpResponseMessageHelper, IJsonHelper jsonHelper)
+        public GetTransferByIdHttpTrigger(
+            IGetTransferByIdHttpTriggerService transferByIdService,
+            IHttpRequestHelper httpRequestMessageHelper,
+            IResourceHelper resourceHelper,
+            ILogger<GetTransferByIdHttpTrigger> logger)
         {
-            _resourceHelper = resourceHelper;
-            _httpRequestMessageHelper = httpRequestMessageHelper;
             _transferByIdService = transferByIdService;
-            _httpResponseMessageHelper = httpResponseMessageHelper;
-            _jsonHelper = jsonHelper;
+            _httpRequestMessageHelper = httpRequestMessageHelper;
+            _resourceHelper = resourceHelper;
+            _logger = logger;
         }
 
-        [FunctionName("GetById")]
+        [Function("GetById")]
         [ProducesResponseType(typeof(Models.Transfer), (int)HttpStatusCode.OK)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfer found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Transfer does not exist", ShowSchema = false)]
@@ -41,42 +39,44 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual transfer record.")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")] HttpRequest req, ILogger log, string customerId, string interactionId, string transferId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}/Interactions/{interactionId}/Transfers/{transferId}")] HttpRequest req, string customerId, string interactionId, string transferId)
         {
             var touchpointId = _httpRequestMessageHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                log.LogInformation("Unable to locate 'TouchpointId' in request header.");
-                return _httpResponseMessageHelper.BadRequest();
+                _logger.LogInformation("Unable to locate 'TouchpointId' in request header.");
+                return new BadRequestResult();
             }
 
-            log.LogInformation("Get Transfer By Id C# HTTP trigger function  processed a request. By Touchpoint. " + touchpointId);
+            _logger.LogInformation("Get Transfer By Id C# HTTP trigger function  processed a request. By Touchpoint. " + touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                return new BadRequestObjectResult(customerGuid.ToString());
 
             if (!Guid.TryParse(interactionId, out var interactionGuid))
-                return _httpResponseMessageHelper.BadRequest(interactionGuid);
+                return new BadRequestObjectResult(interactionGuid.ToString());
 
             if (!Guid.TryParse(transferId, out var transferGuid))
-                return _httpResponseMessageHelper.BadRequest(transferGuid);
+                return new BadRequestObjectResult(transferGuid.ToString());
 
             var doesCustomerExist = await _resourceHelper.DoesCustomerExist(customerGuid);
 
             if (!doesCustomerExist)
-                return _httpResponseMessageHelper.NoContent(customerGuid);
+                return new NoContentResult();
 
             var doesInteractionExist = _resourceHelper.DoesInteractionResourceExistAndBelongToCustomer(interactionGuid, customerGuid);
 
             if (!doesInteractionExist)
-                return _httpResponseMessageHelper.NoContent(interactionGuid);
+                return new NoContentResult();
 
             var transfer = await _transferByIdService.GetTransferForCustomerAsync(customerGuid, transferGuid);
 
-            return transfer == null ?
-                _httpResponseMessageHelper.NoContent(transferGuid) :
-                _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(transfer, "id", "TransferId"));
-
+            return transfer == null
+                ? new NoContentResult()
+                : new JsonResult(transfer, new JsonSerializerOptions())
+                {
+                    StatusCode = (int)HttpStatusCode.OK
+                };
         }
     }
 }

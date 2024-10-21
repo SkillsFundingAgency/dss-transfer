@@ -1,10 +1,7 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using NCS.DSS.Transfer.Cosmos.Helper;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.Transfer.ServiceBus
 {
@@ -23,13 +20,13 @@ namespace NCS.DSS.Transfer.ServiceBus
             var doesSubscriptionExist = subscriptions != null && subscriptions.Any(x =>
                                             x.CustomerId == transfer.CustomerId &&
                                             x.TouchPointId == transfer.TargetTouchpointId);
-            
+
             if (doesSubscriptionExist == false)
             {
                 await _subscriptionHelper.CreateSubscriptionAsync(transfer);
             }
         }
-        
+
         public static async Task SendPostMessageAsync_Target(Models.Transfer transfer, string reqUrl)
         {
             var connectionString = GetConnectionString();

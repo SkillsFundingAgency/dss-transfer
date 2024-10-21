@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using NCS.DSS.Transfer.Cosmos.Provider;
+﻿using NCS.DSS.Transfer.Cosmos.Provider;
 using NCS.DSS.Transfer.ServiceBus;
+using System.Net;
 
 namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
 {

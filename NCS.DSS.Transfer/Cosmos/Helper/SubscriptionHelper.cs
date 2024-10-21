@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using NCS.DSS.Transfer.Cosmos.Provider;
+﻿using NCS.DSS.Transfer.Cosmos.Provider;
 using NCS.DSS.Transfer.Models;
+using System.Net;
 
 namespace NCS.DSS.Transfer.Cosmos.Helper
 {

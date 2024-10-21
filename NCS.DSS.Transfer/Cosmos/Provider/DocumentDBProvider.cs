@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
+﻿using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using NCS.DSS.Transfer.Cosmos.Client;
@@ -12,7 +8,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 {
     public class DocumentDBProvider : IDocumentDBProvider
     {
-      
+
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
         {
             var documentUri = DocumentDBHelper.CreateCustomerDocumentUri(customerId);

@@ -1,11 +1,7 @@
 ﻿using NCS.DSS.Transfer.Validation;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.Transfer.Tests.ValidationTests
 {
@@ -25,15 +21,15 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
         {
             var transfer = new Models.Transfer
             {
-                TargetTouchpointId = "000000000A", 
+                TargetTouchpointId = "000000000A",
                 Context = "Some context data"
             };
 
             var result = _validate.ValidateResource(transfer, true);
 
-            Assert.IsInstanceOf<List<ValidationResult>>(result);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result, Is.InstanceOf<List<ValidationResult>>());
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -47,9 +43,9 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
 
             var result = _validate.ValidateResource(transfer, true);
 
-            Assert.IsInstanceOf<List<ValidationResult>>(result);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Count);
+            Assert.That(result, Is.InstanceOf<List<ValidationResult>>());
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -63,9 +59,9 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
 
             var result = _validate.ValidateResource(transfer, true);
 
-            Assert.IsInstanceOf<List<ValidationResult>>(result);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result, Is.InstanceOf<List<ValidationResult>>());
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -79,9 +75,9 @@ namespace NCS.DSS.Transfer.Tests.ValidationTests
 
             var result = _validate.ValidateResource(transfer, true);
 
-            Assert.IsInstanceOf<List<ValidationResult>>(result);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Count);
+            Assert.That(result, Is.InstanceOf<List<ValidationResult>>());
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(0));
         }
     }
 }
