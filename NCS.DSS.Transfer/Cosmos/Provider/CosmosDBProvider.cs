@@ -142,12 +142,11 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 
                 var subscription = new Subscription
                 {
-                    Id = Guid.NewGuid(),
+                    id = Guid.NewGuid(),
                     CustomerId = transfer.CustomerId,
                     TouchPointId = transfer.TargetTouchpointId,
                     Subscribe = true,
                     LastModifiedDate = transfer.LastModifiedDate,
-
                 };
 
                 if (!transfer.LastModifiedDate.HasValue)
