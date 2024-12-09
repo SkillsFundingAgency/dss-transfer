@@ -71,10 +71,14 @@ namespace NCS.DSS.Transfer.Models
         {
 
             if (!DateandTimeOfTransfer.HasValue)
+            {
                 DateandTimeOfTransfer = DateTime.UtcNow;
+            }
 
             if (!LastModifiedDate.HasValue)
+            {
                 LastModifiedDate = DateTime.UtcNow;
+            }
         }
 
         public void SetIds(Guid customerId, Guid interactionId, string touchpointId)
@@ -89,31 +93,49 @@ namespace NCS.DSS.Transfer.Models
         public void Patch(TransferPatch transferPatch)
         {
             if (transferPatch == null)
+            {
                 return;
+            }
 
             if (!string.IsNullOrEmpty(transferPatch.TargetTouchpointId))
+            {
                 TargetTouchpointId = transferPatch.TargetTouchpointId;
+            }
 
             if (!string.IsNullOrEmpty(transferPatch.Context))
+            {
                 Context = transferPatch.Context;
+            }
 
             if (transferPatch.DateandTimeOfTransfer.HasValue)
+            {
                 DateandTimeOfTransfer = transferPatch.DateandTimeOfTransfer;
+            }
 
             if (transferPatch.DateandTimeofTransferAccepted.HasValue)
+            {
                 DateandTimeofTransferAccepted = transferPatch.DateandTimeofTransferAccepted;
+            }
 
             if (transferPatch.RequestedCallbackTime.HasValue)
+            {
                 RequestedCallbackTime = transferPatch.RequestedCallbackTime;
+            }
 
             if (transferPatch.ActualCallbackTime.HasValue)
+            {
                 ActualCallbackTime = transferPatch.ActualCallbackTime;
+            }
 
             if (transferPatch.LastModifiedDate.HasValue)
+            {
                 LastModifiedDate = transferPatch.LastModifiedDate;
+            }
 
             if (!string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
+            {
                 LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
+            }
         }
 
     }

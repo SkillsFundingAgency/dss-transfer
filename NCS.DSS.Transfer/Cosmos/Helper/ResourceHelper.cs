@@ -4,28 +4,26 @@ namespace NCS.DSS.Transfer.Cosmos.Helper
 {
     public class ResourceHelper : IResourceHelper
     {
+        private readonly ICosmosDBProvider _cosmosDBProvider;
+
+        public ResourceHelper(ICosmosDBProvider cosmosDBProvider)
+        {
+            _cosmosDBProvider = cosmosDBProvider;
+        }
+
         public async Task<bool> DoesCustomerExist(Guid customerId)
         {
-            var documentDbProvider = new DocumentDBProvider();
-            var doesCustomerExist = await documentDbProvider.DoesCustomerResourceExist(customerId);
-
-            return doesCustomerExist;
+            return await _cosmosDBProvider.DoesCustomerResourceExistAsync(customerId);
         }
 
         public async Task<bool> IsCustomerReadOnly(Guid customerId)
         {
-            var documentDbProvider = new DocumentDBProvider();
-            var isCustomerReadOnly = await documentDbProvider.DoesCustomerHaveATerminationDate(customerId);
-
-            return isCustomerReadOnly;
+            return await _cosmosDBProvider.DoesCustomerHaveATerminationDateAsync(customerId);
         }
 
-        public bool DoesInteractionResourceExistAndBelongToCustomer(Guid interactionId, Guid customerId)
+        public async Task<bool> DoesInteractionResourceExistAndBelongToCustomer(Guid interactionId, Guid customerId)
         {
-            var documentDbProvider = new DocumentDBProvider();
-            var doesInteractionExist = documentDbProvider.DoesInteractionResourceExistAndBelongToCustomer(interactionId, customerId);
-
-            return doesInteractionExist;
+            return await _cosmosDBProvider.DoesInteractionResourceExistAndBelongToCustomerAsync(interactionId, customerId);
         }
     }
 }
