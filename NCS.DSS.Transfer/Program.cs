@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NCS.DSS.Transfer.Cosmos.Helper;
+using NCS.DSS.Transfer.Cosmos.Provider;
 using NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Service;
 using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Models;
@@ -35,6 +36,7 @@ namespace NCS.DSS.Transfer
                     services.AddTransient<IGetTransferByIdHttpTriggerService, GetTransferByIdHttpTriggerService>();
                     services.AddTransient<IPostTransferHttpTriggerService, PostTransferHttpTriggerService>();
                     services.AddTransient<IPatchTransferHttpTriggerService, PatchTransferHttpTriggerService>();
+                    services.AddTransient<ICosmosDBProvider, CosmosDBProvider>();
                     services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
                     services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
                     services.AddTransient<IResourceHelper, ResourceHelper>();
