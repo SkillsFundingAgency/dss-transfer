@@ -13,6 +13,7 @@ using NCS.DSS.Transfer.GetTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.Models;
 using NCS.DSS.Transfer.PatchTransferHttpTrigger.Service;
 using NCS.DSS.Transfer.PostTransferHttpTrigger.Service;
+using NCS.DSS.Transfer.ServiceBus;
 using NCS.DSS.Transfer.Validation;
 
 namespace NCS.DSS.Transfer
@@ -37,6 +38,7 @@ namespace NCS.DSS.Transfer
                     services.AddTransient<IPostTransferHttpTriggerService, PostTransferHttpTriggerService>();
                     services.AddTransient<IPatchTransferHttpTriggerService, PatchTransferHttpTriggerService>();
                     services.AddTransient<ICosmosDBProvider, CosmosDBProvider>();
+                    services.AddTransient<IServiceBusClient, ServiceBusClient>();
                     services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
                     services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
                     services.AddTransient<IResourceHelper, ResourceHelper>();
