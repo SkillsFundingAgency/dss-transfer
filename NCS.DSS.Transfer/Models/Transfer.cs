@@ -1,5 +1,6 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace NCS.DSS.Transfer.Models
 {
@@ -7,8 +8,8 @@ namespace NCS.DSS.Transfer.Models
     {
         [Display(Description = "Unique identifier of the transfer record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
-        [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
-        public Guid? TransferId { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public Guid? TransferId { get; set; } = Guid.NewGuid();
 
         [Display(Description = "Unique identifier of a customer.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
@@ -137,6 +138,5 @@ namespace NCS.DSS.Transfer.Models
                 LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
             }
         }
-
     }
 }
