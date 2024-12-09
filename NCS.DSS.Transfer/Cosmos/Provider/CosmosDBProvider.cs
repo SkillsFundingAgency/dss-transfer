@@ -142,7 +142,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 
                 var subscription = new Subscription
                 {
-                    SubscriptionId = Guid.NewGuid(),
+                    Id = Guid.NewGuid(),
                     CustomerId = transfer.CustomerId,
                     TouchPointId = transfer.TargetTouchpointId,
                     Subscribe = true,

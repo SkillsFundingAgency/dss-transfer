@@ -2,8 +2,8 @@
 {
     public class Subscription
     {
+        public Guid Id { get; set; }
         public Guid CustomerId { get; set; }
-        public Guid SubscriptionId { get; set; }
         public string TouchPointId { get; set; }
         public bool Subscribe { get; set; }
         public DateTime? LastModifiedDate { get; set; }
