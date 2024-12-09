@@ -9,7 +9,7 @@ namespace NCS.DSS.Transfer.Models
         [Display(Description = "Unique identifier of the transfer record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
         [JsonProperty(PropertyName = "id")]
-        public Guid? TransferId { get; set; } = Guid.NewGuid();
+        public Guid? TransferId { get; set; }
 
         [Display(Description = "Unique identifier of a customer.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
@@ -70,7 +70,6 @@ namespace NCS.DSS.Transfer.Models
 
         public void SetDefaultValues()
         {
-
             if (!DateandTimeOfTransfer.HasValue)
             {
                 DateandTimeOfTransfer = DateTime.UtcNow;
