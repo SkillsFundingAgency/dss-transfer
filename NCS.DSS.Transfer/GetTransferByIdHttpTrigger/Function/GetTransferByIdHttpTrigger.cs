@@ -31,7 +31,7 @@ namespace NCS.DSS.Transfer.GetTransferByIdHttpTrigger.Function
             _logger = logger;
         }
 
-        [Function("GetById")]
+        [Function("GET_BY_TRANSFERID")]
         [ProducesResponseType(typeof(Models.Transfer), (int)HttpStatusCode.OK)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Transfer found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Transfer does not exist", ShowSchema = false)]
