@@ -47,7 +47,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error checking customer resource existence. Customer ID: {CustomerId}. Error message: {ErrorMessage}", customerId, ex.Message);
+                _logger.LogError(ex, "Error checking customer resource existence. Customer ID: {CustomerId}. Exception: {ErrorMessage}", customerId, ex.Message);
                 throw;
             }
         }
@@ -66,12 +66,12 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
                 var response = await iterator.ReadNextAsync();
                 var interactionFound = response.FirstOrDefault() > 0;
 
-                _logger.LogInformation("Interaction check completed. CustomerId: {CustomerId}. InteractionFound: {interactionFound}", customerId, interactionFound);
+                _logger.LogInformation("Interaction check completed. Customer ID: {CustomerId}. InteractionFound: {interactionFound}", customerId, interactionFound);
                 return interactionFound;
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce, "An error occurred when checking for Interaction. CustomerId: {CustomerId}. InteractionId: {InteractionId}. Error message: {ErrorMessage}",customerId, interactionId, ce.Message);
+                _logger.LogError(ce, "An error occurred when checking for Interaction. Customer ID: {CustomerId}. Interaction ID: {InteractionId}. Error message: {ErrorMessage}",customerId, interactionId, ce.Message);
                 return false;
             }
         }
@@ -86,7 +86,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
                 var dateOfTermination = response.Resource?.DateOfTermination;
                 var hasTerminationDate = dateOfTermination != null;
 
-                _logger.LogInformation("Termination date check completed. CustomerId: {CustomerId}. HasTerminationDate: {HasTerminationDate}", customerId, hasTerminationDate);
+                _logger.LogInformation("Termination date check completed. Customer ID: {CustomerId}. HasTerminationDate: {HasTerminationDate}", customerId, hasTerminationDate);
                 return dateOfTermination != null;
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -104,7 +104,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 
         public async Task<List<Subscription>> GetSubscriptionsByCustomerIdAsync(Guid? customerId)
         {
-            _logger.LogInformation("Retrieving subscriptions. CustomerId: {CustomerId}", customerId);
+            _logger.LogInformation("Retrieving subscriptions. Customer ID: {CustomerId}", customerId);
 
             try
             {
@@ -124,7 +124,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce, "An error occured when retrieving Subscriptions. CustomerId: {CustomerId}", customerId);
+                _logger.LogError(ce, "An error occured when retrieving Subscriptions. Customer ID: {CustomerId}", customerId);
                 return null;
             }
         }
@@ -158,23 +158,23 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
                 var response = await _subscriptionContainer.CreateItemAsync(subscription, _partitionKey);
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
-                    _logger.LogInformation("Successfully created Subscription. CustomerId: {CustomerId}", transfer.CustomerId);
+                    _logger.LogInformation("Successfully created Subscription. Customer ID: {CustomerId}", transfer.CustomerId);
                     return response.Resource;
                 }
 
-                _logger.LogWarning("Failed to create Subscription. Customer ID: {CustomerId}. Response Code {StatusCode}", transfer.CustomerId, response.StatusCode);
+                _logger.LogWarning("Failed to create Subscription. Customer ID: {CustomerId}. Response Code: {StatusCode}", transfer.CustomerId, response.StatusCode);
                 return null;
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce,"An error occurred when creating Subscription. Customer ID: {CustomerId}. Exception {ExceptionMessage}", transfer.CustomerId, ce.Message);
+                _logger.LogError(ce,"An error occurred when creating Subscription. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", transfer.CustomerId, ce.Message);
                 throw;
             }
         }
 
         public async Task<List<Models.Transfer>> GetTransfersForCustomerAsync(Guid customerId)
         {
-            _logger.LogInformation("Retrieving Transfers. CustomerId: {CustomerId}", customerId);
+            _logger.LogInformation("Retrieving Transfers. Customer ID: {CustomerId}", customerId);
 
             try
             {
@@ -190,20 +190,20 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
                     transfers.AddRange(response.Resource);
                 }
 
-                _logger.LogInformation("Retrieved {Count} Transfers. CustomerId: {CustomerId}", transfers.Count, customerId);
+                _logger.LogInformation("Retrieved {Count} Transfers. Customer ID: {CustomerId}", transfers.Count, customerId);
 
                 return transfers.Any() ? transfers : null;
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce,"An error occurred when retrieving Transfers. Customer ID: {CustomerId}. Exception {ExceptionMessage}", customerId, ce.Message);
+                _logger.LogError(ce,"An error occurred when retrieving Transfers. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", customerId, ce.Message);
                 return null;
             }
         }
 
         public async Task<Models.Transfer> GetTransferForCustomerAsync(Guid customerId, Guid transferId)
         {
-            _logger.LogInformation("Retrieving Transfer. CustomerId: {CustomerId}, TransferId: {TransferId}", customerId, transferId);
+            _logger.LogInformation("Retrieving Transfer. Customer ID: {CustomerId}, Transfer ID: {TransferId}", customerId, transferId);
 
             try
             {
@@ -218,14 +218,14 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce,"An error occurred when retrieving Transfers. Customer ID: {CustomerId}. Exception {ExceptionMessage}", customerId, ce.Message);
+                _logger.LogError(ce,"An error occurred when retrieving Transfers. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", customerId, ce.Message);
 
                 return null;
             }
         }
         public async Task<ItemResponse<Models.Transfer>> CreateTransferAsync(Models.Transfer transfer)
         {
-            _logger.LogInformation("Creating Transfer. CustomerId: {CustomerId}", transfer.CustomerId);
+            _logger.LogInformation("Creating Transfer. Customer ID: {CustomerId}", transfer.CustomerId);
 
             try
             {
@@ -235,14 +235,14 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce,"An error occurred when creating Transfer. Customer ID: {CustomerId}. Exception {ExceptionMessage}", transfer.CustomerId, ce.Message);
+                _logger.LogError(ce,"An error occurred when creating Transfer. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", transfer.CustomerId, ce.Message);
                 return null;
             }
         }
 
         public async Task<ItemResponse<Models.Transfer>> UpdateTransferAsync(Models.Transfer transfer)
         {
-            _logger.LogInformation("Updating transfer. TransferId: {TransferId}. CustomerId: {CustomerId}", transfer.TransferId, transfer.CustomerId);
+            _logger.LogInformation("Updating transfer. TransferId: {TransferId}. Customer ID: {CustomerId}", transfer.TransferId, transfer.CustomerId);
 
             try
             {
@@ -253,7 +253,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce, "An error occured when updating Transfer. Customer ID: {CustomerId}. Exception {ExceptionMessage}", transfer.CustomerId, ce.Message);
+                _logger.LogError(ce, "An error occured when updating Transfer. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", transfer.CustomerId, ce.Message);
                 return null;
             }
         }
