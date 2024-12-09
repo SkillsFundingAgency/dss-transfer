@@ -189,7 +189,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
                     transfers.AddRange(response.Resource);
                 }
 
-                _logger.LogInformation("Retrieved {Count} Transfers. Customer ID: {CustomerId}", transfers.Count, customerId);
+                _logger.LogInformation("Retrieved {Count} Transfer(s). Customer ID: {CustomerId}", transfers.Count, customerId);
 
                 return transfers.Any() ? transfers : null;
             }

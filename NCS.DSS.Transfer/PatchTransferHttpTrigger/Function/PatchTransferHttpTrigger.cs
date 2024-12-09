@@ -128,10 +128,10 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 
             if (errors != null && errors.Any())
             {
-                _logger.LogWarning("Falied to validate {TransferPatch}", nameof(transferPatchRequest));
+                _logger.LogWarning("Falied to validate {TransferPatch} object", nameof(transferPatchRequest));
                 return new UnprocessableEntityObjectResult(errors);
             }
-            _logger.LogInformation("Successfully validated {TransferPatch}", nameof(transferPatchRequest));
+            _logger.LogInformation("Successfully validated {TransferPatch} object", nameof(transferPatchRequest));
 
             _logger.LogInformation("Attempting to check if customer exists. Customer GUID: {CustomerId}. Correlation GUID: {CorrelationGuid}", customerGuid, correlationGuid);
             var doesCustomerExist = await _resourceHelper.DoesCustomerExist(customerGuid);
@@ -166,7 +166,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
             }
             _logger.LogInformation("Interaction exists for customer. Customer GUID: {CustomerGuid}. Interaction GUID: {InteractionGuid}", customerGuid, interactionGuid);
 
-            _logger.LogInformation("Attempting to retrieve Transfer(s) for customer. Customer GUID: {CustomerGuid}. Transfer GUID: {TransferGuid}", customerGuid, transferGuid);
+            _logger.LogInformation("Attempting to retrieve Transfer for customer. Customer GUID: {CustomerGuid}. Transfer GUID: {TransferGuid}", customerGuid, transferGuid);
             var transfer = await _transferPatchService.GetTransferForCustomerAsync(customerGuid, transferGuid);
 
             if (transfer == null)
@@ -174,9 +174,9 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
                 _logger.LogWarning("Transfer does not exist for customer. Customer GUID: {CustomerGuid}. Transfer GUID: {TransferGuid}", customerGuid, transferGuid);
                 return new NoContentResult();
             }
-            _logger.LogInformation("Transfer(s) exists for customer. Customer GUID: {CustomerGuid}. Transfer GUID: {TransferGuid}", customerGuid, transferGuid);
+            _logger.LogInformation("Transfer exists for customer. Customer GUID: {CustomerGuid}. Transfer GUID: {TransferGuid}", customerGuid, transferGuid);
 
-            _logger.LogInformation("Attempting to PATCH a Transfer. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogInformation("Attempting to PATCH Transfer. Customer GUID: {CustomerGuid}", customerGuid);
             var updatedTransfer = await _transferPatchService.UpdateAsync(transfer, transferPatchRequest);
 
             if (updatedTransfer != null)

@@ -109,10 +109,10 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 
             if (errors != null && errors.Any())
             {
-                _logger.LogWarning("Falied to validate {TransferRequest}", nameof(transferRequest));
+                _logger.LogWarning("Falied to validate {TransferRequest} object", nameof(transferRequest));
                 return new UnprocessableEntityObjectResult(errors);
             }
-            _logger.LogInformation("Successfully validated {TransferRequest}", nameof(transferRequest));
+            _logger.LogInformation("Successfully validated {TransferRequest} object", nameof(transferRequest));
 
             _logger.LogInformation("Attempting to check if customer exists. Customer GUID: {CustomerId}", customerGuid);
             var doesCustomerExist = await _resourceHelper.DoesCustomerExist(customerGuid);
@@ -147,7 +147,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             }
             _logger.LogInformation("Interaction exists for customer. Customer GUID: {CustomerGuid}. Interaction GUID: {InteractionGuid}", customerGuid, interactionGuid);
 
-            _logger.LogInformation("Attempting to POST a Transfer. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogInformation("Attempting to POST Transfer. Customer GUID: {CustomerGuid}", customerGuid);
             var transfer = await _transferPostService.CreateAsync(transferRequest);
 
             if (transfer != null)
