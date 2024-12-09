@@ -206,9 +206,10 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
 
             try
             {
-                var query = new QueryDefinition("SELECT * FROM c WHERE c.CustomerId = @customerId AND c.TransferId = @transferId")
-                    .WithParameter("@customerId", customerId)
-                    .WithParameter("@transferId", transferId);
+                var query = new QueryDefinition(
+                        "SELECT * FROM c WHERE c.id = @transferId AND c.CustomerId = @customerId")
+                    .WithParameter("@transferId", transferId)
+                    .WithParameter("@customerId", customerId);
 
                 var iterator = _transferContainer.GetItemQueryIterator<Models.Transfer>(query);
                 var response = await iterator.ReadNextAsync();
@@ -217,7 +218,7 @@ namespace NCS.DSS.Transfer.Cosmos.Provider
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce,"An error occurred when retrieving Transfers. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", customerId, ce.Message);
+                _logger.LogError(ce,"An error occurred when retrieving Transfer. Customer ID: {CustomerId}. Exception: {ExceptionMessage}", customerId, ce.Message);
 
                 return null;
             }
