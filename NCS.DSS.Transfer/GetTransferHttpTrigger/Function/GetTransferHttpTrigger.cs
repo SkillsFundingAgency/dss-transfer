@@ -90,7 +90,6 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Function
             if (transfers == null)
             {
                 _logger.LogInformation("Transfer does not exist for customer. Customer GUID: {CustomerGuid}", customerGuid);
-                _logger.LogInformation("Function {FunctionName} has finished invoking", nameof(GetTransferHttpTrigger));
                 return new NoContentResult();
             }
 
