@@ -1,103 +1,123 @@
-﻿using Microsoft.Azure.ServiceBus;
-using NCS.DSS.Transfer.Cosmos.Helper;
+﻿using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NCS.DSS.Transfer.Cosmos.Provider;
+using NCS.DSS.Transfer.Models;
 using Newtonsoft.Json;
 using System.Text;
 
 namespace NCS.DSS.Transfer.ServiceBus
 {
 
-    public static class ServiceBusClient
+    public class ServiceBusClient : IServiceBusClient
     {
-        public static readonly string KeyName = Environment.GetEnvironmentVariable("KeyName");
-        public static readonly string AccessKey = Environment.GetEnvironmentVariable("AccessKey");
-        public static readonly string BaseAddress = Environment.GetEnvironmentVariable("BaseAddress");
-        public static readonly string QueueName = Environment.GetEnvironmentVariable("QueueName");
-        private static readonly SubscriptionHelper _subscriptionHelper = new SubscriptionHelper();
+        private readonly ServiceBusSender _serviceBusSender;
+        private readonly ICosmosDBProvider _cosmosDBProvider;
+        private readonly ILogger<ServiceBusClient> _logger;
 
-        public static async Task CheckAndCreateSubscription(Models.Transfer transfer)
+        public ServiceBusClient(Azure.Messaging.ServiceBus.ServiceBusClient serviceBusClient, ICosmosDBProvider cosmosDBProvider, IOptions<TransferConfigurationSettings> configOptions, ILogger<ServiceBusClient> logger)
         {
-            var subscriptions = await _subscriptionHelper.GetSubscriptionsAsync(transfer.CustomerId);
+            var config = configOptions.Value;
+
+            _serviceBusSender = serviceBusClient.CreateSender(config.QueueName);
+            _cosmosDBProvider = cosmosDBProvider;
+            _logger = logger;
+        }
+
+        public async Task CheckAndCreateSubscription(Models.Transfer transfer)
+        {
+            var subscriptions = await _cosmosDBProvider.GetSubscriptionsByCustomerIdAsync(transfer.CustomerId);
             var doesSubscriptionExist = subscriptions != null && subscriptions.Any(x =>
                                             x.CustomerId == transfer.CustomerId &&
                                             x.TouchPointId == transfer.TargetTouchpointId);
 
             if (doesSubscriptionExist == false)
             {
-                await _subscriptionHelper.CreateSubscriptionAsync(transfer);
+                await _cosmosDBProvider.CreateSubscriptionAsync(transfer);
             }
         }
 
-        public static async Task SendPostMessageAsync_Target(Models.Transfer transfer, string reqUrl)
+        public async Task SendPostMessageAsync(Models.Transfer transfer, string reqUrl)
         {
-            var connectionString = GetConnectionString();
-            var queueClient = new QueueClient(connectionString, QueueName);
-            var messageModel = new MessageModel()
-            {
-                TitleMessage = "New Transfer record {" + transfer.TransferId + "} added at " + DateTime.UtcNow,
-                CustomerGuid = transfer.CustomerId,
-                LastModifiedDate = transfer.LastModifiedDate,
-                URL = reqUrl + "/" + transfer.TransferId,
-                IsNewCustomer = false,
-                TouchpointId = transfer.LastModifiedTouchpointId
-            };
+            _logger.LogInformation(
+                "Starting {MethodName}. Transfer ID: {TransferId}. Customer ID: {CustomerId}",
+                nameof(SendPostMessageAsync), transfer.TransferId, transfer.CustomerId);
 
-            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+            try
             {
-                ContentType = "application/json",
-                MessageId = transfer.CustomerId + " " + DateTime.UtcNow
-            };
+                var messageModel = new MessageModel()
+                {
+                    TitleMessage = $"New Transfer record {transfer.CustomerId} added at {DateTime.UtcNow}",
+                    CustomerGuid = transfer.CustomerId,
+                    LastModifiedDate = transfer.LastModifiedDate,
+                    URL = $"{reqUrl}/{transfer.TransferId}",
+                    IsNewCustomer = false,
+                    TouchpointId = transfer.LastModifiedTouchpointId
+                };
 
-            await CheckAndCreateSubscription(transfer);
-            await queueClient.SendAsync(msg);
+                var msg = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+                {
+                    ContentType = "application/json",
+                    MessageId = $"{transfer.CustomerId} {DateTime.UtcNow}"
+                };
+
+                await CheckAndCreateSubscription(transfer);
+                await _serviceBusSender.SendMessageAsync(msg);
+
+                _logger.LogInformation(
+                    "Successfully completed {MethodName}. Transfer ID: {TransferId}. Customer ID: {CustomerId}",
+                    nameof(SendPostMessageAsync), transfer.TransferId, transfer.CustomerId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred in {MethodName}. Transfer ID: {TransferId}. Customer ID: {CustomerId}",
+                    nameof(SendPostMessageAsync), transfer.TransferId, transfer.CustomerId);
+                throw;
+            }
         }
 
-        private static string GetConnectionString()
+        public async Task SendPatchMessageAsync(Models.Transfer transfer, Guid customerId, string reqUrl)
         {
-            ServiceBusConnectionStringBuilder sb = new ServiceBusConnectionStringBuilder();
-            sb.Endpoint = BaseAddress;
-            sb.SasKey = AccessKey;
-            sb.EntityPath = "tranfers";
-            sb.SasKeyName = KeyName;
-            var connectionString = sb.GetNamespaceConnectionString();
-            return connectionString;
-        }
+            _logger.LogInformation(
+                "Starting {MethodName}. Transfer ID: {TransferId}. Customer ID: {CustomerId}",
+                nameof(SendPatchMessageAsync), transfer.TransferId, customerId);
 
-        public static async Task SendPatchMessageAsync(Models.Transfer transfer, Guid customerId, string reqUrl)
-        {
-            var connectionString = GetConnectionString();
-
-            var queueClient = new QueueClient(connectionString, QueueName);
-            var messageModel = new MessageModel
+            try
             {
-                TitleMessage = "Transfer record modification for {" + customerId + "} at " + DateTime.UtcNow,
-                CustomerGuid = customerId,
-                LastModifiedDate = transfer.LastModifiedDate,
-                URL = reqUrl,
-                IsNewCustomer = false,
-                TouchpointId = transfer.LastModifiedTouchpointId
-            };
+                var messageModel = new MessageModel
+                {
+                    TitleMessage = $"Transfer record modification for {customerId} at {DateTime.UtcNow}",
+                    CustomerGuid = customerId,
+                    LastModifiedDate = transfer.LastModifiedDate,
+                    URL = reqUrl,
+                    IsNewCustomer = false,
+                    TouchpointId = transfer.LastModifiedTouchpointId
+                };
 
-            var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+                var msg = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageModel)))
+                {
+                    ContentType = "application/json",
+                    MessageId = $"{customerId} {DateTime.UtcNow}"
+                };
+
+                await CheckAndCreateSubscription(transfer);
+                await _serviceBusSender.SendMessageAsync(msg);
+
+                _logger.LogInformation(
+                    "Successfully completed {MethodName}. Transfer ID: {TransferId}. Customer ID: {CustomerId}",
+                    nameof(SendPatchMessageAsync), transfer.TransferId, customerId);
+            }
+            catch (Exception ex)
             {
-                ContentType = "application/json",
-                MessageId = customerId + " " + DateTime.UtcNow
-            };
-
-            await CheckAndCreateSubscription(transfer);
-            await queueClient.SendAsync(msg);
+                _logger.LogError(
+                    ex,
+                    "An error occurred in {MethodName}. Transfer ID: {TransferId}. Customer ID: {CustomerId}",
+                    nameof(SendPatchMessageAsync), transfer.TransferId, customerId);
+                throw;
+            }
         }
-
     }
-
-    public class MessageModel
-    {
-        public string TitleMessage { get; set; }
-        public Guid? CustomerGuid { get; set; }
-        public DateTime? LastModifiedDate { get; set; }
-        public string URL { get; set; }
-        public bool IsNewCustomer { get; set; }
-        public string TouchpointId { get; set; }
-    }
-
 }
 
