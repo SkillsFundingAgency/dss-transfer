@@ -1,3 +1,4 @@
+using Azure.Identity;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard;
 using Microsoft.Azure.Cosmos;
@@ -47,15 +48,14 @@ namespace NCS.DSS.Transfer
 
                     services.AddSingleton(sp =>
                     {
-                        var config = sp.GetRequiredService<IOptions<TransferConfigurationSettings>>().Value;
-                        config.TransferConnectionString = $"AccountEndpoint={config.Endpoint}/;AccountKey={config.Key};Database={config.CustomerDatabaseId};";
-
-                        var options = new CosmosClientOptions()
+                        var cosmosDbEndpoint = configuration["CosmosDbEndpoint"];
+                        if (string.IsNullOrEmpty(cosmosDbEndpoint))
                         {
-                            ConnectionMode = ConnectionMode.Gateway
-                        };
+                            throw new InvalidOperationException("CosmosDbEndpoint is not configured.");
+                        }
 
-                        return new CosmosClient(config.TransferConnectionString, options);
+                        var options = new CosmosClientOptions() { ConnectionMode = ConnectionMode.Gateway };
+                        return new CosmosClient(cosmosDbEndpoint, new DefaultAzureCredential(), options);
                     });
 
                     services.AddSingleton(sp =>
