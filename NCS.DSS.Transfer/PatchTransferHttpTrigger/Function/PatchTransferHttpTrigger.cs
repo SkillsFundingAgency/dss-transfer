@@ -73,8 +73,8 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
                 return new BadRequestResult();
             }
 
-            var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
-            if (string.IsNullOrEmpty(apimUrl))
+            var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
+            if (string.IsNullOrEmpty(ApimURL))
             {
                 _logger.LogWarning("Unable to locate 'apimURL' in request header. Correlation GUID: {CorrelationGuid}", correlationGuid);
                 return new BadRequestResult();
@@ -128,7 +128,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
 
             if (errors != null && errors.Any())
             {
-                _logger.LogWarning("Failed to validate {TransferPatch} object", nameof(transferPatchRequest));
+                _logger.LogWarning("Falied to validate {TransferPatch} object", nameof(transferPatchRequest));
                 return new UnprocessableEntityObjectResult(errors);
             }
             _logger.LogInformation("Successfully validated {TransferPatch} object", nameof(transferPatchRequest));
@@ -182,7 +182,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
             if (updatedTransfer != null)
             {
                 _logger.LogInformation("Sending newly created Transfer to service bus. Customer GUID: {CustomerGuid}. Transfer ID: {TransferId}. Correlation GUID: {CorrelationGuid}", customerGuid, updatedTransfer.TransferId.GetValueOrDefault(), correlationGuid);
-                await _transferPatchService.SendToServiceBusQueueAsync(transfer, customerGuid, apimUrl);
+                await _transferPatchService.SendToServiceBusQueueAsync(transfer, customerGuid, ApimURL);
             }
 
             if (updatedTransfer == null)
