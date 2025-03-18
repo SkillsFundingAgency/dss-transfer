@@ -60,8 +60,8 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
                 return new BadRequestResult();
             }
 
-            var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
-            if (string.IsNullOrEmpty(apimUrl))
+            var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
+            if (string.IsNullOrEmpty(ApimURL))
             {
                 _logger.LogWarning("Unable to locate 'apimURL' in request header");
                 return new BadRequestResult();
@@ -109,7 +109,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
 
             if (errors != null && errors.Any())
             {
-                _logger.LogWarning("Failed to validate {TransferRequest} object", nameof(transferRequest));
+                _logger.LogWarning("Falied to validate {TransferRequest} object", nameof(transferRequest));
                 return new UnprocessableEntityObjectResult(errors);
             }
             _logger.LogInformation("Successfully validated {TransferRequest} object", nameof(transferRequest));
@@ -153,7 +153,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
             if (transfer != null)
             {
                 _logger.LogInformation("Sending newly created Transfer to service bus. Customer GUID: {CustomerGuid}. Transfer ID: {TransferId}", customerGuid, transfer.TransferId.GetValueOrDefault());
-                await _transferPostService.SendToServiceBusQueueAsync(transfer, apimUrl);
+                await _transferPostService.SendToServiceBusQueueAsync(transfer, ApimURL);
             }
 
             if (transfer == null)
