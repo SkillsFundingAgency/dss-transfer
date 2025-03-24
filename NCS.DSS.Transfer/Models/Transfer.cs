@@ -1,5 +1,6 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace NCS.DSS.Transfer.Models
 {
@@ -7,7 +8,7 @@ namespace NCS.DSS.Transfer.Models
     {
         [Display(Description = "Unique identifier of the transfer record.")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
-        [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
+        [JsonProperty(PropertyName = "id")]
         public Guid? TransferId { get; set; }
 
         [Display(Description = "Unique identifier of a customer.")]
@@ -69,12 +70,15 @@ namespace NCS.DSS.Transfer.Models
 
         public void SetDefaultValues()
         {
-
             if (!DateandTimeOfTransfer.HasValue)
+            {
                 DateandTimeOfTransfer = DateTime.UtcNow;
+            }
 
             if (!LastModifiedDate.HasValue)
+            {
                 LastModifiedDate = DateTime.UtcNow;
+            }
         }
 
         public void SetIds(Guid customerId, Guid interactionId, string touchpointId)
@@ -89,32 +93,49 @@ namespace NCS.DSS.Transfer.Models
         public void Patch(TransferPatch transferPatch)
         {
             if (transferPatch == null)
+            {
                 return;
+            }
 
             if (!string.IsNullOrEmpty(transferPatch.TargetTouchpointId))
+            {
                 TargetTouchpointId = transferPatch.TargetTouchpointId;
+            }
 
             if (!string.IsNullOrEmpty(transferPatch.Context))
+            {
                 Context = transferPatch.Context;
+            }
 
             if (transferPatch.DateandTimeOfTransfer.HasValue)
+            {
                 DateandTimeOfTransfer = transferPatch.DateandTimeOfTransfer;
+            }
 
             if (transferPatch.DateandTimeofTransferAccepted.HasValue)
+            {
                 DateandTimeofTransferAccepted = transferPatch.DateandTimeofTransferAccepted;
+            }
 
             if (transferPatch.RequestedCallbackTime.HasValue)
+            {
                 RequestedCallbackTime = transferPatch.RequestedCallbackTime;
+            }
 
             if (transferPatch.ActualCallbackTime.HasValue)
+            {
                 ActualCallbackTime = transferPatch.ActualCallbackTime;
+            }
 
             if (transferPatch.LastModifiedDate.HasValue)
+            {
                 LastModifiedDate = transferPatch.LastModifiedDate;
+            }
 
             if (!string.IsNullOrEmpty(transferPatch.LastModifiedTouchpointId))
+            {
                 LastModifiedTouchpointId = transferPatch.LastModifiedTouchpointId;
+            }
         }
-
     }
 }

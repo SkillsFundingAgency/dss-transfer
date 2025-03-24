@@ -105,7 +105,7 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -120,7 +120,7 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _getTransferHttpTriggerService.Setup(x => x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(null));
 
             // Act
@@ -136,7 +136,7 @@ namespace NCS.DSS.Transfer.Tests
             // Arrange
             _httpRequestMessageHelper.Setup(x => x.GetDssTouchpointId(_request)).Returns("0000000001");
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(true));
             var listOfTransferes = new List<Models.Transfer>() { new Models.Transfer() { TransferId = Guid.NewGuid(), CustomerId = Guid.NewGuid() } };
             _getTransferHttpTriggerService.Setup(x => x.GetTransfersAsync(It.IsAny<Guid>())).Returns(Task.FromResult<List<Models.Transfer>>(listOfTransferes));
 

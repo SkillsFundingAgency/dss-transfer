@@ -6,23 +6,32 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Service
 {
     public class PostTransferHttpTriggerService : IPostTransferHttpTriggerService
     {
+        private readonly ICosmosDBProvider _cosmosDBProvider;
+        private readonly IServiceBusClient _serviceBusClient;
+
+        public PostTransferHttpTriggerService(ICosmosDBProvider cosmosDBProvider, IServiceBusClient serviceBusClient)
+        {
+            _cosmosDBProvider = cosmosDBProvider;
+            _serviceBusClient = serviceBusClient;
+        }
+
         public async Task<Models.Transfer> CreateAsync(Models.Transfer transfer)
         {
             if (transfer == null)
+            {
                 return null;
+            }
 
             transfer.SetDefaultValues();
 
-            var documentDbProvider = new DocumentDBProvider();
+            var response = await _cosmosDBProvider.CreateTransferAsync(transfer);
 
-            var response = await documentDbProvider.CreateTransferAsync(transfer);
-
-            return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
+            return response.StatusCode == HttpStatusCode.Created ? response.Resource : null;
         }
 
         public async Task SendToServiceBusQueueAsync(Models.Transfer transfer, string reqUrl)
         {
-            await ServiceBusClient.SendPostMessageAsync_Target(transfer, reqUrl);
+            await _serviceBusClient.SendPostMessageAsync(transfer, reqUrl);
         }
     }
 }
