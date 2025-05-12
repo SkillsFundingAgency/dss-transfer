@@ -4,12 +4,16 @@ namespace NCS.DSS.Transfer.GetTransferHttpTrigger.Service
 {
     public class GetTransferHttpTriggerService : IGetTransferHttpTriggerService
     {
+        private readonly ICosmosDBProvider _cosmosDBProvider;
+
+        public GetTransferHttpTriggerService(ICosmosDBProvider cosmosDBProvider)
+        {
+            _cosmosDBProvider = cosmosDBProvider;
+        }
+
         public async Task<List<Models.Transfer>> GetTransfersAsync(Guid customerId)
         {
-            var documentDbProvider = new DocumentDBProvider();
-            var transfers = await documentDbProvider.GetTransfersForCustomerAsync(customerId);
-
-            return transfers;
+            return await _cosmosDBProvider.GetTransfersForCustomerAsync(customerId);
         }
     }
 }

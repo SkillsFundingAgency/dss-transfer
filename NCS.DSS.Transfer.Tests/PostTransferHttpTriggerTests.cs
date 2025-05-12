@@ -162,7 +162,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(false);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var result = await RunFunction(ValidCustomerId, ValidInteractionId);
@@ -179,7 +179,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(null));
 
             // Act
@@ -197,7 +197,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(null));
 
             // Act
@@ -215,7 +215,7 @@ namespace NCS.DSS.Transfer.Tests
             _httpRequestMessageHelper.Setup(x => x.GetDssApimUrl(_request)).Returns("http://localhost:7071/");
             _httpRequestMessageHelper.Setup(x => x.GetResourceFromRequest<Models.Transfer>(_request)).Returns(Task.FromResult(_transfer));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(true);
+            _resourceHelper.Setup(x => x.DoesInteractionResourceExistAndBelongToCustomer(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _postTransferHttpTriggerService.Setup(x => x.CreateAsync(It.IsAny<Models.Transfer>())).Returns(Task.FromResult<Models.Transfer>(_transfer));
 
             // Act

@@ -10,7 +10,9 @@ namespace NCS.DSS.Transfer.Cosmos.Helper
             foreach (var item in typeof(Exception).GetProperties())
             {
                 if (names.Contains(item.Name))
+                {
                     continue;
+                }
 
                 AddProperty(updatedObject, item.Name, item.GetValue(exception));
             }
@@ -21,9 +23,13 @@ namespace NCS.DSS.Transfer.Cosmos.Helper
         {
             var expandoDict = expando as IDictionary<string, object>;
             if (expandoDict.ContainsKey(propertyName))
+            {
                 expandoDict[propertyName] = propertyValue;
+            }
             else
+            {
                 expandoDict.Add(propertyName, propertyValue);
+            }
         }
     }
 }

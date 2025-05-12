@@ -8,26 +8,29 @@ namespace NCS.DSS.Transfer.APIDefinition
 {
     public class ApiDefinition
     {
-        public const string APITitle = "Transfers";
-        public const string APIDefinitionName = "API-Definition";
-        public const string APIDefRoute = APITitle + "/" + APIDefinitionName;
-        public const string APIDescription = "Basic details of a National Careers Service " + APITitle + " Resource";
-        private readonly ISwaggerDocumentGenerator swaggerDocumentGenerator;
-        private string ApiVersion = "2.0.0";
+        private const string APITitle = "Transfers";
+        private const string APIDefinitionName = "API-Definition";
+        private const string APIDefRoute = APITitle + "/" + APIDefinitionName;
+        private const string APIDescription = "Basic details of a National Careers Service " + APITitle + " Resource";
+        private const string ApiVersion = "2.0.0";
+        
+        private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
 
         public ApiDefinition(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
-            this.swaggerDocumentGenerator = swaggerDocumentGenerator;
+            this._swaggerDocumentGenerator = swaggerDocumentGenerator;
         }
 
         [Function(APIDefinitionName)]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = APIDefRoute)] HttpRequest req)
         {
-            var swagger = swaggerDocumentGenerator.GenerateSwaggerDocument(req, APITitle, APIDescription,
+            var swagger = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, APITitle, APIDescription,
                 APIDefinitionName, ApiVersion, Assembly.GetExecutingAssembly());
 
             if (string.IsNullOrEmpty(swagger))
+            {
                 return new NoContentResult();
+            }
 
             return new OkObjectResult(swagger);
         }

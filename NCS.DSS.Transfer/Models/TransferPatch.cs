@@ -50,7 +50,9 @@ namespace NCS.DSS.Transfer.Models
         public void SetDefaultValues()
         {
             if (!LastModifiedDate.HasValue)
+            {
                 LastModifiedDate = DateTime.UtcNow;
+            }
         }
     }
 }
