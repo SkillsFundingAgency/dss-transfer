@@ -1,3 +1,4 @@
+using Azure.Identity;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard;
 using Microsoft.Azure.Cosmos;
@@ -47,15 +48,30 @@ namespace NCS.DSS.Transfer
 
                     services.AddSingleton(sp =>
                     {
-                        var config = sp.GetRequiredService<IOptions<TransferConfigurationSettings>>().Value;
-                        config.TransferConnectionString = $"AccountEndpoint={config.Endpoint}/;AccountKey={config.Key};Database={config.CustomerDatabaseId};";
+                        var logger = sp.GetRequiredService<ILogger<Program>>();
 
-                        var options = new CosmosClientOptions()
+                        var connectionString = configuration["TransfersConnectionString"];
+                        var endpoint = configuration["CosmosDbEndpoint"];
+
+                        var options = new CosmosClientOptions
                         {
                             ConnectionMode = ConnectionMode.Gateway
                         };
 
-                        return new CosmosClient(config.TransferConnectionString, options);
+                        if (!string.IsNullOrWhiteSpace(endpoint))
+                        {
+                            logger.LogInformation("Using DefaultAzureCredential for Cosmos DB (managed identity)");
+                            return new CosmosClient(endpoint, new DefaultAzureCredential(), options);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(connectionString))
+                        {
+                            logger.LogInformation("No managed identity found: using Cosmos DB connection string (local development)");
+                            return new CosmosClient(connectionString, options);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Neither CosmosDbEndpoint or a ConnectionString are configured");
+                        }
                     });
 
                     services.AddSingleton(sp =>

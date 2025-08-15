@@ -6,7 +6,7 @@
         public required string KeyName { get; set; }
         public required string AccessKey { get; set; }
         public required string QueueName { get; set; }
-        public required string Endpoint { get; set; }
+        public required string CosmosDbEndpoint { get; set; }
         public required string Key { get; set; }
         public required string TransferConnectionString { get; set; } = string.Empty;
         public required string ServiceBusConnectionString { get; set; } = string.Empty;
