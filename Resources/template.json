@@ -11,17 +11,11 @@
     "CosmosDbEndpoint": {
       "type": "string"
     },
-    "cosmosDbKey": {
-      "type": "string"
-    },
     "environmentName": {
       "type": "string"
     },
     "functionAppNames": {
       "type": "array"
-    },
-    "serviceBusAccessKey": {
-      "type": "string"
     },
     "serviceBusAccessKeyName": {
       "type": "string"
@@ -49,6 +43,9 @@
     },
     "appInsightsInstrumentationKey":{
       "type": "string"
+    },
+    "keyVaultName": {
+      "type": "string"
     }
   },
   "resources": [
@@ -65,7 +62,7 @@
         "CollectionId": "[parameters('cosmosDbCollectionId')]",
         "DatabaseId": "[parameters('cosmosDbDatabaseId')]",
         "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]",
-        "Key": "[parameters('cosmosDbKey')]",
+        "Key": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=CosmosDbAccessKey)', parameters('keyVaultName'))]",
         "CustomerCollectionId": "customers",
         "CustomerDatabaseId": "customers",
         "InteractionCollectionId": "interactions",
@@ -73,7 +70,7 @@
         "SubscriptionCollectionId": "subscriptions",
         "SubscriptionDatabaseId": "subscriptions",
         "KeyName": "[parameters('serviceBusAccessKeyName')]",
-        "AccessKey": "[parameters('serviceBusAccessKey')]",
+        "AccessKey": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=SharedServiceBusSASManageAccessKey)', parameters('keyVaultName'))]",
         "BaseAddress": "[parameters('serviceBusBaseAddress')]",
         "QueueName": "[parameters('serviceBusQueueName')]"
       },
