@@ -22,7 +22,7 @@ namespace NCS.DSS.Transfer.PostTransferHttpTrigger.Function
         private readonly IValidate _validate;
         private readonly IDynamicHelper _dynamicHelper;
         private readonly ILogger<PostTransferHttpTrigger> _logger;
-        private static readonly string[] PropertyToExclude = { "TargetSite" };
+        private static readonly string[] PropertyToExclude = { "TargetSite", "StackTrace" };
 
         public PostTransferHttpTrigger(
             IPostTransferHttpTriggerService transferPostService,
