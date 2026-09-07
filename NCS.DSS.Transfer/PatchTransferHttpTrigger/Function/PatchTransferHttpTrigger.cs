@@ -22,7 +22,7 @@ namespace NCS.DSS.Transfer.PatchTransferHttpTrigger.Function
         private readonly IValidate _validate;
         private readonly IDynamicHelper _dynamicHelper;
         private readonly ILogger<PatchTransferHttpTrigger> _logger;
-        private static readonly string[] PropertyToExclude = { "TargetSite" };
+        private static readonly string[] PropertyToExclude = { "TargetSite", "StackTrace" };
 
         public PatchTransferHttpTrigger(
             IPatchTransferHttpTriggerService transferPatchService,
